@@ -18,6 +18,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Run tests
         uses: php-actions/phpunit@v1
+        with:
+          config: phpunit.xml.dist
+          memory: 256M
         env:
           MERCHANT_TOKEN: ${{ secrets.MERCHANT_TOKEN }}
           PAYEE_ID: ${{ secrets.PAYEE_ID }}

@@ -71,4 +71,9 @@ class Gateway
      * @var bool
      */
     public $reject_corporate_cards = false;
+
+    /**
+     * @var string
+     */
+    public $currency = 'EUR';
 }

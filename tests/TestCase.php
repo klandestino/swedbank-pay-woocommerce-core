@@ -33,7 +33,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->gateway = new Gateway();
         $this->adapter = new Adapter($this->gateway);
-        $this->core = new SwedbankPay\Core\Core($this->adapter);
+        $this->core = new Core($this->adapter);
     }
 
     protected function tearDown(): void

@@ -89,51 +89,69 @@ class Adapter extends PaymentAdapter implements PaymentAdapterInterface
      */
     public function getOrderData($orderId)
     {
+        $items = [];
+        $items[] = [
+            // The field Reference must match the regular expression '[\\w-]*'
+            OrderItemInterface::FIELD_REFERENCE   => 'TEST',
+            OrderItemInterface::FIELD_NAME        => 'Test',
+            OrderItemInterface::FIELD_TYPE        => OrderItemInterface::TYPE_PRODUCT,
+            OrderItemInterface::FIELD_CLASS       => 'product',
+            OrderItemInterface::FIELD_ITEM_URL    => 'https://example.com/product1',
+            OrderItemInterface::FIELD_IMAGE_URL   => 'https://example.com/product1.jpg',
+            OrderItemInterface::FIELD_DESCRIPTION => 'Test product',
+            OrderItemInterface::FIELD_QTY         => 1,
+            OrderItemInterface::FIELD_QTY_UNIT    => 'pcs',
+            OrderItemInterface::FIELD_UNITPRICE   => round( 125 * 100 ),
+            OrderItemInterface::FIELD_VAT_PERCENT => round( 25 * 100 ),
+            OrderItemInterface::FIELD_AMOUNT      => round( 125 * 100 ),
+            OrderItemInterface::FIELD_VAT_AMOUNT  => round( 25 * 100 ),
+        ];
+
         return [
-            OrderInterface::ORDER_ID => null,
-            OrderInterface::AMOUNT => null,
-            OrderInterface::VAT_AMOUNT => null,
-            OrderInterface::VAT_RATE => null,
-            OrderInterface::SHIPPING_AMOUNT => null,
-            OrderInterface::SHIPPING_VAT_AMOUNT => null,
-            OrderInterface::DESCRIPTION => null,
-            OrderInterface::CURRENCY => null,
-            OrderInterface::STATUS => null,
-            OrderInterface::CREATED_AT => null,
+            OrderInterface::ORDER_ID => $orderId,
+            OrderInterface::AMOUNT => 125,
+            OrderInterface::VAT_AMOUNT => 25,
+            OrderInterface::VAT_RATE => 25,
+            OrderInterface::SHIPPING_AMOUNT => 0,
+            OrderInterface::SHIPPING_VAT_AMOUNT => 0,
+            OrderInterface::DESCRIPTION => 'Test order',
+            OrderInterface::CURRENCY => $this->gateway->currency,
+            OrderInterface::STATUS => OrderInterface::STATUS_AUTHORIZED,
+            OrderInterface::CREATED_AT => gmdate( 'Y-m-d H:i:s' ),
             OrderInterface::PAYMENT_ID => null,
             OrderInterface::PAYMENT_ORDER_ID => null,
-            OrderInterface::NEEDS_SAVE_TOKEN_FLAG => null,
+            OrderInterface::NEEDS_SAVE_TOKEN_FLAG => false,
             OrderInterface::HTTP_ACCEPT => null,
-            OrderInterface::HTTP_USER_AGENT => null,
-            OrderInterface::BILLING_COUNTRY => null,
-            OrderInterface::BILLING_COUNTRY_CODE => null,
-            OrderInterface::BILLING_ADDRESS1 => null,
-            OrderInterface::BILLING_ADDRESS2 => null,
-            OrderInterface::BILLING_ADDRESS3 => null,
-            OrderInterface::BILLING_CITY => null,
+            OrderInterface::HTTP_USER_AGENT => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0',
+            OrderInterface::BILLING_COUNTRY => 'Sweden',
+            OrderInterface::BILLING_COUNTRY_CODE => 'SE',
+            OrderInterface::BILLING_ADDRESS1 => 'Hökvägen 5',
+            OrderInterface::BILLING_ADDRESS2 => '',
+            OrderInterface::BILLING_ADDRESS3 => '',
+            OrderInterface::BILLING_CITY => 'Järfälla',
             OrderInterface::BILLING_STATE => null,
-            OrderInterface::BILLING_POSTCODE => null,
-            OrderInterface::BILLING_PHONE => null,
-            OrderInterface::BILLING_EMAIL => null,
-            OrderInterface::BILLING_FIRST_NAME => null,
-            OrderInterface::BILLING_LAST_NAME => null,
-            OrderInterface::SHIPPING_COUNTRY => null,
-            OrderInterface::SHIPPING_COUNTRY_CODE => null,
-            OrderInterface::SHIPPING_ADDRESS1 => null,
-            OrderInterface::SHIPPING_ADDRESS2 => null,
-            OrderInterface::SHIPPING_ADDRESS3 => null,
-            OrderInterface::SHIPPING_CITY => null,
+            OrderInterface::BILLING_POSTCODE => '17674',
+            OrderInterface::BILLING_PHONE => '+46739000001',
+            OrderInterface::BILLING_EMAIL => 'leia.ahlstrom@payex.com',
+            OrderInterface::BILLING_FIRST_NAME => 'Leia',
+            OrderInterface::BILLING_LAST_NAME => 'Ahlström',
+            OrderInterface::SHIPPING_COUNTRY => 'Sweden',
+            OrderInterface::SHIPPING_COUNTRY_CODE => 'SE',
+            OrderInterface::SHIPPING_ADDRESS1 => 'Hökvägen 5',
+            OrderInterface::SHIPPING_ADDRESS2 => '',
+            OrderInterface::SHIPPING_ADDRESS3 => '',
+            OrderInterface::SHIPPING_CITY => 'Järfälla',
             OrderInterface::SHIPPING_STATE => null,
-            OrderInterface::SHIPPING_POSTCODE => null,
-            OrderInterface::SHIPPING_PHONE => null,
-            OrderInterface::SHIPPING_EMAIL => null,
-            OrderInterface::SHIPPING_FIRST_NAME => null,
-            OrderInterface::SHIPPING_LAST_NAME => null,
-            OrderInterface::CUSTOMER_ID => null,
-            OrderInterface::CUSTOMER_IP => null,
-            OrderInterface::PAYER_REFERENCE => null,
-            OrderInterface::ITEMS => null,
-            OrderInterface::LANGUAGE => null,
+            OrderInterface::SHIPPING_POSTCODE => '17674',
+            OrderInterface::SHIPPING_PHONE => '+46739000001',
+            OrderInterface::SHIPPING_EMAIL => 'leia.ahlstrom@payex.com',
+            OrderInterface::SHIPPING_FIRST_NAME => 'Leia',
+            OrderInterface::SHIPPING_LAST_NAME => 'Ahlström',
+            OrderInterface::CUSTOMER_ID => 1,
+            OrderInterface::CUSTOMER_IP => '127.0.0.1',
+            OrderInterface::PAYER_REFERENCE => uniqid('ref'),
+            OrderInterface::ITEMS => $items,
+            OrderInterface::LANGUAGE => 'en-US',
         ];
     }
 
@@ -146,7 +164,10 @@ class Adapter extends PaymentAdapter implements PaymentAdapterInterface
      */
     public function getRiskIndicator($orderId)
     {
-        // @todo
+        return [
+            // Two-day or more shipping
+            'deliveryTimeFrameIndicator' => '04'
+        ];
     }
 
     /**
@@ -158,7 +179,9 @@ class Adapter extends PaymentAdapter implements PaymentAdapterInterface
      */
     public function getPayeeInfo($orderId)
     {
-        // @todo
+        return array(
+            PayeeInfoInterface::ORDER_REFERENCE => $orderId,
+        );
     }
 
     /**

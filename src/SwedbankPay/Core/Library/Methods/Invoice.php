@@ -139,7 +139,7 @@ trait Invoice
                 'customerNumber' => $order->getCustomerId(),
                 'email' => $order->getBillingEmail(),
                 'msisdn' => '+' . ltrim($order->getBillingPhone(), '+'),
-                'ip' => $order->getHttpUserAgent()
+                'ip' => $order->getCustomerIp()
             ],
             'legalAddress' => [
                 'addressee' => $addressee,

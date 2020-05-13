@@ -11,6 +11,7 @@ use SwedbankPay\Core\Library\Methods\Invoice;
 use SwedbankPay\Core\Library\Methods\Swish;
 use SwedbankPay\Core\Library\Methods\Vipps;
 use SwedbankPay\Core\Library\Methods\Checkout;
+use SwedbankPay\Core\Library\Methods\Consumer;
 
 class Core implements CoreInterface
 {
@@ -20,6 +21,7 @@ class Core implements CoreInterface
     use Swish;
     use Vipps;
     use Checkout;
+    use Consumer;
     use TransactionAction;
     use OrderAction;
 

@@ -22,6 +22,7 @@ jobs:
         uses: php-actions/phpunit@v1
         with:
           config: phpunit.xml.dist
+          bootstrap: tests/bootstrap.php
           memory: 256M
         env:
           MERCHANT_TOKEN: ${{ secrets.MERCHANT_TOKEN }}

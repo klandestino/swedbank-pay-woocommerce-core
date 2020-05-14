@@ -1,6 +1,6 @@
 <?php
 
-namespace SwedbankPay\Adapter;
+namespace SwedbankPay\Core\Adapter;
 
 use SwedbankPay\Core\Log\LogLevel;
 use SwedbankPay\Core\PaymentAdapter;

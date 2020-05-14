@@ -1,7 +1,7 @@
 {
   "name": "swedbank-pay/swedbank-pay-woocommerce-core",
   "type": "library",
-  "description": "The Swedbank Core for PHP",
+  "description": "The Core of Swedbank Pay WooCommerce plugins",
   "authors": [
     {
       "name": "Richard Birnik",

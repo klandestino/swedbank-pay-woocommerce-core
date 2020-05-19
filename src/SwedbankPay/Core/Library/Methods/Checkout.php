@@ -6,6 +6,7 @@ use SwedbankPay\Core\Api\Response;
 use SwedbankPay\Core\Exception;
 use SwedbankPay\Core\Log\LogLevel;
 use SwedbankPay\Core\Order;
+use SwedbankPay\Core\OrderInterface;
 
 trait Checkout
 {
@@ -139,5 +140,213 @@ trait Checkout
         }
 
         return false;
+    }
+
+    /**
+     * Capture Checkout.
+     *
+     * @param mixed $orderId
+     * @param int|float $amount
+     * @param int|float $vatAmount
+     * @param array $items
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function captureCheckout($orderId, $amount = null, $vatAmount = 0, array $items = [])
+    {
+        /** @var Order $order */
+        $order = $this->getOrder($orderId);
+
+        if (!$amount) {
+            $amount = $order->getAmount();
+            $vatAmount = $order->getVatAmount();
+        }
+
+        $paymentOrderId = $order->getPaymentOrderId();
+        if (empty($paymentOrderId)) {
+            throw new Exception('Unable to get the payment order ID');
+        }
+
+        /** @var Response $result */
+        $result = $this->request('GET', $paymentOrderId);
+        $href = $result->getOperationByRel('create-paymentorder-capture');
+        if (empty($href)) {
+            throw new Exception('Capture is unavailable');
+        }
+
+        $params = [
+            'transaction' => [
+                'amount'         => (int)bcmul(100, $amount),
+                'vatAmount'      => (int)bcmul(100, $vatAmount),
+                'description'    => sprintf( 'Capture for Order #%s', $order->getOrderId() ),
+                'payeeReference' => $this->generatePayeeReference($orderId),
+                'orderItems' => $items
+            ]
+        ];
+
+        $result = $this->request( 'POST', $href, $params );
+
+        // Save transaction
+        $transaction = $result['capture']['transaction'];
+        $this->saveTransaction($orderId, $transaction);
+
+        switch ($transaction['state']) {
+            case 'Completed':
+                $this->updateOrderStatus(OrderInterface::STATUS_CAPTURED, 'Transaction is captured.');
+                break;
+            case 'Initialized':
+                $this->updateOrderStatus(OrderInterface::STATUS_AUTHORIZED,
+                    sprintf('Transaction capture status: %s.', $transaction['state']));
+                break;
+            case 'Failed':
+                $message = isset($transaction['failedReason']) ? $transaction['failedReason'] : 'Capture is failed.';
+                throw new Exception($message);
+            default:
+                throw new Exception('Capture is failed.');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Cancel Checkout.
+     *
+     * @param mixed $orderId
+     * @param int|float|null $amount
+     * @param int|float $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function cancelCheckout($orderId, $amount = null, $vatAmount = 0)
+    {
+        /** @var Order $order */
+        $order = $this->getOrder($orderId);
+
+        if ($amount > 0 && $amount !== $order->getAmount()) {
+            throw new Exception('Partial cancellation isn\'t available.');
+        }
+
+        if ($vatAmount > 0 && $vatAmount !== $order->getVatAmount()) {
+            throw new Exception('Partial cancellation isn\'t available.');
+        }
+
+        $paymentOrderId = $order->getPaymentOrderId();
+        if (empty($paymentOrderId)) {
+            throw new Exception('Unable to get the payment order ID');
+        }
+
+        /** @var Response $result */
+        $result = $this->request('GET', $paymentOrderId);
+        $href = $result->getOperationByRel('create-paymentorder-cancel');
+        if (empty($href)) {
+            throw new Exception('Cancellation is unavailable');
+        }
+
+        $params = [
+            'transaction' => [
+                'description'    => sprintf( 'Cancellation for Order #%s', $order->getOrderId() ),
+                'payeeReference' => $this->generatePayeeReference($orderId),
+            ]
+        ];
+
+        $result = $this->request( 'POST', $href, $params );
+
+        // Save transaction
+        $transaction = $result['cancellation']['transaction'];
+        $this->saveTransaction($orderId, $transaction);
+
+        switch ($transaction['state']) {
+            case 'Completed':
+                $this->updateOrderStatus(OrderInterface::STATUS_CANCELLED, 'Transaction is cancelled.');
+                break;
+            case 'Initialized':
+            case 'AwaitingActivity':
+                $this->updateOrderStatus(OrderInterface::STATUS_CANCELLED,
+                    sprintf('Transaction cancellation status: %s.', $transaction['state']));
+                break;
+            case 'Failed':
+                $message = isset($transaction['failedReason']) ? $transaction['failedReason'] : 'Cancellation is failed.';
+                throw new Exception($message);
+            default:
+                throw new Exception('Capture is failed.');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Refund Checkout.
+     *
+     * @param mixed $orderId
+     * @param int|float|null $amount
+     * @param int|float $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function refundCheckout($orderId, $amount = null, $vatAmount = 0)
+    {
+        /** @var Order $order */
+        $order = $this->getOrder($orderId);
+
+        if (!$amount) {
+            $amount = $order->getAmount();
+            $vatAmount = $order->getVatAmount();
+        }
+
+        $paymentOrderId = $order->getPaymentOrderId();
+        if (empty($paymentOrderId)) {
+            throw new Exception('Unable to get the payment order ID');
+        }
+
+        /** @var Response $result */
+        $result = $this->request('GET', $paymentOrderId);
+        $href = $result->getOperationByRel('create-paymentorder-reversal');
+        if (empty($href)) {
+            throw new Exception('Refund is unavailable');
+        }
+
+        // @todo Partial Refund
+
+        $params = [
+            'transaction' => [
+                'description' => sprintf( 'Refund for Order #%s', $order->getOrderId() ),
+                'amount' => (int)bcmul(100, $amount),
+                'vatAmount' => (int)bcmul(100, $vatAmount),
+                'payeeReference' => $this->generatePayeeReference($orderId),
+                'receiptReference' => $this->generatePayeeReference($orderId),
+                'orderItems' => $order->getItems()
+            ]
+        ];
+
+        $result = $this->request('POST', $href, $params);
+
+        // Save transaction
+        $transaction = $result['reversal']['transaction'];
+        $this->saveTransaction($orderId, $transaction);
+
+        switch ($transaction['state']) {
+            case 'Completed':
+                $this->updateOrderStatus(
+                    OrderInterface::STATUS_REFUNDED,
+                    sprintf('Refunded: %s.', $amount)
+                );
+                break;
+            case 'Initialized':
+            case 'AwaitingActivity':
+                $this->updateOrderStatus(OrderInterface::STATUS_CANCELLED,
+                    sprintf('Transaction reversal status: %s.', $transaction['state'])
+                );
+                break;
+            case 'Failed':
+                $message = isset($transaction['failedReason']) ? $transaction['failedReason'] : 'Refund is failed.';
+                throw new Exception($message);
+            default:
+                throw new Exception('Refund is failed.');
+        }
+
+        return $result;
     }
 }

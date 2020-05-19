@@ -125,16 +125,53 @@ interface CoreInterface
     public function cancelInvoice($orderId, $amount = null);
 
     /**
-     * Refund Invoice.
+     * Capture Checkout.
      *
      * @param mixed $orderId
-     * @param int|float|null $amount
-     * @param string|null reason
+     * @param int|float $amount
+     * @param int|float $vatAmount
+     * @param array $items
      *
      * @return Response
      * @throws Exception
      */
-    public function refundInvoice($orderId, $amount = null, $reason = null);
+    public function captureCheckout($orderId, $amount = null, $vatAmount = 0, array $items = []);
+
+    /**
+     * Cancel Checkout.
+     *
+     * @param mixed $orderId
+     * @param int|float|null $amount
+     * @param int|float $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function cancelCheckout($orderId, $amount = null, $vatAmount = 0);
+
+    /**
+     * Refund Checkout.
+     *
+     * @param mixed $orderId
+     * @param int|float|null $amount
+     * @param int|float $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function refundCheckout($orderId, $amount = null, $vatAmount = 0);
+
+    /**
+     * Refund Invoice.
+     *
+     * @param mixed $orderId
+     * @param int|float|null $amount
+     * @param int|float $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function refundInvoice($orderId, $amount = null, $vatAmount = 0);
 
     public function canCapture($orderId, $amount = null);
 

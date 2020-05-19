@@ -39,6 +39,6 @@ class PlatformUrls extends Data implements PlatformUrlsInterface
             }
         }
 
-        return array_unique($urls);
+        return array_values(array_unique($urls));
     }
 }

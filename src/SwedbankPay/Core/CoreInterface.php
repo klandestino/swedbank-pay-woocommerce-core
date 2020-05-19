@@ -162,6 +162,15 @@ interface CoreInterface
     public function refundCheckout($orderId, $amount = null, $vatAmount = 0);
 
     /**
+     * Get Current Payment Resource.
+     * The currentpayment resource displays the payment that are active within the payment order container.
+     *
+     * @param string $paymentOrderId
+     * @return array|false
+     */
+    public function getCheckoutCurrentPayment($paymentOrderId);
+
+    /**
      * Refund Invoice.
      *
      * @param mixed $orderId

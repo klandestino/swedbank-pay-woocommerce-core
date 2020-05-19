@@ -143,6 +143,20 @@ trait Checkout
     }
 
     /**
+     * Get Current Payment Resource.
+     * The currentpayment resource displays the payment that are active within the payment order container.
+     *
+     * @param string $paymentOrderId
+     * @return array|false
+     */
+    public function getCheckoutCurrentPayment($paymentOrderId)
+    {
+        $payment = $this->request('GET', $paymentOrderId . '/currentpayment');
+
+        return isset($payment['payment']) ? $payment['payment'] : false;
+    }
+
+    /**
      * Capture Checkout.
      *
      * @param mixed $orderId

@@ -207,11 +207,19 @@ trait Checkout
 
         switch ($transaction['state']) {
             case 'Completed':
-                $this->updateOrderStatus(OrderInterface::STATUS_CAPTURED, 'Transaction is captured.');
+                $this->updateOrderStatus(
+                    $orderId,
+                    OrderInterface::STATUS_CAPTURED,
+                    'Transaction is captured.',
+                    $transaction['number']
+                );
                 break;
             case 'Initialized':
-                $this->updateOrderStatus(OrderInterface::STATUS_AUTHORIZED,
-                    sprintf('Transaction capture status: %s.', $transaction['state']));
+                $this->updateOrderStatus(
+                    $orderId,
+                    OrderInterface::STATUS_AUTHORIZED,
+                    sprintf('Transaction capture status: %s.', $transaction['state'])
+                );
                 break;
             case 'Failed':
                 $message = isset($transaction['failedReason']) ? $transaction['failedReason'] : 'Capture is failed.';
@@ -273,12 +281,20 @@ trait Checkout
 
         switch ($transaction['state']) {
             case 'Completed':
-                $this->updateOrderStatus(OrderInterface::STATUS_CANCELLED, 'Transaction is cancelled.');
+                $this->updateOrderStatus(
+                    $orderId,
+                    OrderInterface::STATUS_CANCELLED,
+                    'Transaction is cancelled.',
+                    $transaction['number']
+                );
                 break;
             case 'Initialized':
             case 'AwaitingActivity':
-                $this->updateOrderStatus(OrderInterface::STATUS_CANCELLED,
-                    sprintf('Transaction cancellation status: %s.', $transaction['state']));
+                $this->updateOrderStatus(
+                    $orderId,
+                    OrderInterface::STATUS_CANCELLED,
+                    sprintf('Transaction cancellation status: %s.', $transaction['state'])
+                );
                 break;
             case 'Failed':
                 $message = isset($transaction['failedReason']) ? $transaction['failedReason'] : 'Cancellation is failed.';
@@ -344,13 +360,17 @@ trait Checkout
         switch ($transaction['state']) {
             case 'Completed':
                 $this->updateOrderStatus(
+                    $orderId,
                     OrderInterface::STATUS_REFUNDED,
-                    sprintf('Refunded: %s.', $amount)
+                    sprintf('Refunded: %s.', $amount),
+                    $transaction['number']
                 );
                 break;
             case 'Initialized':
             case 'AwaitingActivity':
-                $this->updateOrderStatus(OrderInterface::STATUS_CANCELLED,
+                $this->updateOrderStatus(
+                    $orderId,
+                    OrderInterface::STATUS_CANCELLED,
                     sprintf('Transaction reversal status: %s.', $transaction['state'])
                 );
                 break;

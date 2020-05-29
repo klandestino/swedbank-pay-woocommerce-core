@@ -24,7 +24,7 @@ trait PaymentInfo
     public function request($method, $url, $params = [])
     {
         // Get rid of full url. There's should be an endpoint only.
-        if (filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED)) {
+        if (filter_var($url, FILTER_VALIDATE_URL)) {
             $parsed = parse_url($url);
             $url = $parsed['path'];
             if (!empty($parsed['query'])) {

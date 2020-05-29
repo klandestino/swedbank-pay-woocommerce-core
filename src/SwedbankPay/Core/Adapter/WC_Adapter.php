@@ -131,7 +131,13 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
         return array(
             PlatformUrlsInterface::COMPLETE_URL => $this->gateway->get_return_url($order),
             PlatformUrlsInterface::CANCEL_URL => $order->get_cancel_order_url_raw(),
-            PlatformUrlsInterface::CALLBACK_URL => WC()->api_request_url(get_class($this->gateway)),
+            PlatformUrlsInterface::CALLBACK_URL => add_query_arg(
+                array(
+                    'order_id' => $order->get_id(),
+                    'key' => $order->get_order_key(),
+                ),
+                WC()->api_request_url(get_class($this->gateway))
+            ),
             PlatformUrlsInterface::TERMS_URL => $this->getConfiguration()[ConfigurationInterface::TERMS_URL],
         );
     }

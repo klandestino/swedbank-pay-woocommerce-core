@@ -106,69 +106,25 @@ interface CoreInterface
      *
      * @param mixed $orderId
      * @param int|float $amount
+     * @param int|float $vatAmount
      * @param array $items
      *
      * @return Response
      * @throws Exception
      */
-    public function captureInvoice($orderId, $amount = null, array $items = []);
+    public function captureInvoice($orderId, $amount = null, $vatAmount = 0, array $items = []);
 
     /**
      * Cancel Invoice.
      *
      * @param mixed $orderId
      * @param int|float|null $amount
-     *
-     * @return Response
-     * @throws Exception
-     */
-    public function cancelInvoice($orderId, $amount = null);
-
-    /**
-     * Capture Checkout.
-     *
-     * @param mixed $orderId
-     * @param int|float $amount
-     * @param int|float $vatAmount
-     * @param array $items
-     *
-     * @return Response
-     * @throws Exception
-     */
-    public function captureCheckout($orderId, $amount = null, $vatAmount = 0, array $items = []);
-
-    /**
-     * Cancel Checkout.
-     *
-     * @param mixed $orderId
-     * @param int|float|null $amount
      * @param int|float $vatAmount
      *
      * @return Response
      * @throws Exception
      */
-    public function cancelCheckout($orderId, $amount = null, $vatAmount = 0);
-
-    /**
-     * Refund Checkout.
-     *
-     * @param mixed $orderId
-     * @param int|float|null $amount
-     * @param int|float $vatAmount
-     *
-     * @return Response
-     * @throws Exception
-     */
-    public function refundCheckout($orderId, $amount = null, $vatAmount = 0);
-
-    /**
-     * Get Current Payment Resource.
-     * The currentpayment resource displays the payment that are active within the payment order container.
-     *
-     * @param string $paymentOrderId
-     * @return array|false
-     */
-    public function getCheckoutCurrentPayment($paymentOrderId);
+    public function cancelInvoice($orderId, $amount = null, $vatAmount = 0);
 
     /**
      * Refund Invoice.
@@ -328,4 +284,79 @@ interface CoreInterface
      * @throws Exception
      */
     public function initiateVippsPayment($orderId, $phone);
+
+    /**
+     * Initiate Payment Order Purchase.
+     *
+     * @param mixed $orderId
+     * @param string|null $consumerProfileRef
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function initiatePaymentOrderPurchase($orderId, $consumerProfileRef = null);
+
+    /**
+     * @param string $updateUrl
+     * @param mixed $orderId
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function updatePaymentOrder($updateUrl, $orderId);
+
+    /**
+     * Get Payment ID url by Payment Order.
+     *
+     * @param string $paymentOrderId
+     *
+     * @return string|false
+     */
+    public function getPaymentIdByPaymentOrder($paymentOrderId);
+
+    /**
+     * Get Current Payment Resource.
+     * The currentpayment resource displays the payment that are active within the payment order container.
+     *
+     * @param string $paymentOrderId
+     * @return array|false
+     */
+    public function getCheckoutCurrentPayment($paymentOrderId);
+
+    /**
+     * Capture Checkout.
+     *
+     * @param mixed $orderId
+     * @param int|float $amount
+     * @param int|float $vatAmount
+     * @param array $items
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function captureCheckout($orderId, $amount = null, $vatAmount = 0, array $items = []);
+
+    /**
+     * Cancel Checkout.
+     *
+     * @param mixed $orderId
+     * @param int|float|null $amount
+     * @param int|float $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function cancelCheckout($orderId, $amount = null, $vatAmount = 0);
+
+    /**
+     * Refund Checkout.
+     *
+     * @param mixed $orderId
+     * @param int|float|null $amount
+     * @param int|float $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function refundCheckout($orderId, $amount = null, $vatAmount = 0);
 }

@@ -20,6 +20,4 @@
             <directory>../src</directory>
         </whitelist>
     </filter>
-    <log type="coverage-html" target="." />
-    <log type="coverage-clover" target="clover.xml"/>
 </phpunit>

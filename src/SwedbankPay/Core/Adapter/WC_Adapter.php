@@ -546,10 +546,18 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
         $expiry_date,
         $order_id = null
     ) {
-        $expiry_date = explode('/', $expiry_date);
+        if (!property_exists($this->gateway, 'payment_token_class')) {
+            return;
+        }
 
         // Create Payment Token
-        $token = new WC_Payment_Token_Swedbank_Pay();
+        if (!is_string($this->gateway->payment_token_class) || !class_exists($this->gateway->payment_token_class, false)) {
+            throw new \Exception(__('Payment Token class is undefined.', 'swedbank-pay-woocommerce-payments'));
+        }
+
+        $expiry_date = explode('/', $expiry_date);
+
+        $token = new $this->gateway->payment_token_class;
         $token->set_gateway_id($this->gateway->id);
         $token->set_token($payment_token);
         $token->set_recurrence_token($recurrence_token);

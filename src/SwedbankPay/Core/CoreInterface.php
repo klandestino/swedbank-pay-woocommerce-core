@@ -290,11 +290,27 @@ interface CoreInterface
      *
      * @param mixed $orderId
      * @param string|null $consumerProfileRef
+     * @param bool $generateRecurrenceToken
      *
      * @return Response
      * @throws Exception
      */
-    public function initiatePaymentOrderPurchase($orderId, $consumerProfileRef = null);
+    public function initiatePaymentOrderPurchase(
+        $orderId,
+        $consumerProfileRef = null,
+        $generateRecurrenceToken = false
+    );
+
+    /**
+     * Initiate Payment Order Recurrent Payment
+     *
+     * @param mixed $orderId
+     * @param string $recurrenceToken
+     *
+     * @return Response
+     * @throws \Exception
+     */
+    public function initiatePaymentOrderRecur($orderId, $recurrenceToken);
 
     /**
      * @param string $updateUrl

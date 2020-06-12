@@ -35,7 +35,11 @@ class Adapter extends PaymentAdapter implements PaymentAdapterInterface
      */
     public function log($level, $message, array $context = [])
     {
-        // @todo
+	    file_put_contents(
+	    	get_temp_dir() . '/swedbankpay.log',
+		    sprintf('[%s] %s [%s]', $level, $message, var_export($context, true)) . "\n",
+		    FILE_APPEND
+	    );
     }
 
     /**

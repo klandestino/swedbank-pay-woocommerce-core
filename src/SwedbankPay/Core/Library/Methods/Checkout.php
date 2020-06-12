@@ -15,11 +15,12 @@ trait Checkout
      *
      * @param mixed $orderId
      * @param string|null $consumerProfileRef
+     * @param bool $generateRecurrenceToken
      *
      * @return Response
      * @throws Exception
      */
-    public function initiatePaymentOrderPurchase($orderId, $consumerProfileRef = null)
+    public function initiatePaymentOrderPurchase($orderId, $consumerProfileRef = null, $generateRecurrenceToken = false)
     {
         /** @var Order $order */
         $order = $this->getOrder($orderId);
@@ -35,7 +36,7 @@ trait Checkout
                 'description' => $order->getDescription(),
                 'userAgent' => $order->getHttpUserAgent(),
                 'language' => $order->getLanguage(),
-                'generateRecurrenceToken' => false,
+                'generateRecurrenceToken' => $generateRecurrenceToken,
                 'disablePaymentMenu' => false,
                 'urls' => [
                     'hostUrls' => $urls->getHostUrls(),
@@ -80,6 +81,55 @@ trait Checkout
             $this->log(LogLevel::DEBUG, sprintf('%s::%s: API Exception: %s', __CLASS__, __METHOD__, $e->getMessage()));
 
             throw new Exception($e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * Initiate Payment Order Recurrent Payment
+     *
+     * @param mixed $orderId
+     * @param string $recurrenceToken
+     *
+     * @return Response
+     * @throws \Exception
+     */
+    public function initiatePaymentOrderRecur($orderId, $recurrenceToken)
+    {
+        /** @var Order $order */
+        $order = $this->getOrder($orderId);
+
+        $params = [
+            'payment' => [
+                'operation' => self::OPERATION_RECUR,
+                'recurrenceToken' => $recurrenceToken,
+                'intent' => $this->configuration->getAutoCapture() ? self::INTENT_AUTOCAPTURE : self::INTENT_AUTHORIZATION,
+                'currency' => $order->getCurrency(),
+                'amount' => $order->getAmountInCents(),
+                'vatAmount' => $order->getVatAmountInCents(),
+                'description' => $order->getDescription(),
+                'payerReference' => $order->getPayerReference(),
+                'userAgent' => $order->getHttpUserAgent(),
+                'language' => $order->getLanguage(),
+                'urls' => [
+                    'callbackUrl' => $this->getPlatformUrls($orderId)->getCallbackUrl()
+                ],
+                'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
+                'orderItems' => $order->getItems(),
+                'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),
+                'metadata' => [
+                    'order_id' => $orderId
+                ],
+            ]
+        ];
+
+        try {
+            $result = $this->request('POST', '/psp/paymentorders', $params);
+        } catch (\Exception $e) {
+            $this->log(LogLevel::DEBUG, sprintf('%s::%s: API Exception: %s', __CLASS__, __METHOD__, $e->getMessage()));
+
+            throw $e;
         }
 
         return $result;

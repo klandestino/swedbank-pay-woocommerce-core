@@ -62,7 +62,7 @@ trait Card
                     'rejectCorporateCards' => $this->configuration->getRejectCorporateCards()
                 ],
                 'prefillInfo' => [
-                    'msisdn' => '+' . ltrim($order->getBillingPhone(), '+')
+                    'msisdn' => $order->getBillingPhone()
                 ],
                 'metadata' => [
                     'order_id' => $order->getOrderId()

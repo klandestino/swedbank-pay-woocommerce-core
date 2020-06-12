@@ -177,8 +177,8 @@ class Order extends Data implements OrderInterface
             'lastName' => $this->getBillingLastName(),
             'email' => $this->getBillingEmail(),
             'msisdn' => $this->getBillingPhone(),
-            //'homePhoneNumber' => $this->getBillingPhone(),
-            //'workPhoneNumber' => $this->getBillingPhone(),
+            'homePhoneNumber' => $this->getBillingPhone(),
+            'workPhoneNumber' => $this->getBillingPhone(),
             'shippingAddress' => [
                 'firstName' => $this->getShippingFirstName(),
                 'lastName' => $this->getShippingLastName(),

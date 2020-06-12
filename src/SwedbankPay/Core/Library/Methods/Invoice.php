@@ -138,7 +138,7 @@ trait Invoice
                 'socialSecurityNumber' => $ssn,
                 'customerNumber' => $order->getCustomerId(),
                 'email' => $order->getBillingEmail(),
-                'msisdn' => '+' . ltrim($order->getBillingPhone(), '+'),
+                'msisdn' => $order->getBillingPhone(),
                 'ip' => $order->getCustomerIp()
             ],
             'legalAddress' => [

@@ -34,7 +34,7 @@ class Verification extends Data implements VerificationInterface
     /**
      * Get Recurrence Token.
      *
-     * @return array
+     * @return string
      */
     public function getRecurrenceToken()
     {
@@ -44,7 +44,7 @@ class Verification extends Data implements VerificationInterface
     /**
      * Get Masked Pan.
      *
-     * @return array
+     * @return string
      */
     public function getMaskedPan()
     {
@@ -54,7 +54,7 @@ class Verification extends Data implements VerificationInterface
     /**
      * Get Card Brand.
      *
-     * @return array
+     * @return string
      */
     public function getCardBrand()
     {
@@ -64,7 +64,7 @@ class Verification extends Data implements VerificationInterface
     /**
      * Get Expire Date.
      *
-     * @return array
+     * @return string
      */
     public function getExpireDate()
     {

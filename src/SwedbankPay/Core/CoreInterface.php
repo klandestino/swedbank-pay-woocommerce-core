@@ -302,6 +302,16 @@ interface CoreInterface
     );
 
     /**
+     * Initiate Payment Order Verify
+     *
+     * @param mixed $orderId
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function initiatePaymentOrderVerify($orderId);
+
+    /**
      * Initiate Payment Order Recurrent Payment
      *
      * @param mixed $orderId

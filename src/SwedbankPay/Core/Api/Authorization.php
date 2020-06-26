@@ -34,7 +34,7 @@ class Authorization extends Data implements AuthorizationInterface
     /**
      * Get Recurrence Token.
      *
-     * @return array
+     * @return string
      */
     public function getRecurrenceToken()
     {
@@ -64,7 +64,7 @@ class Authorization extends Data implements AuthorizationInterface
     /**
      * Get Expire Date.
      *
-     * @return array
+     * @return string
      */
     public function getExpireDate()
     {

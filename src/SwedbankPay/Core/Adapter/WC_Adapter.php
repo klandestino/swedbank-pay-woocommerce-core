@@ -55,7 +55,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
 
         $logger->log(
             WC_Log_Levels::INFO,
-            sprintf('%s %s %s', $level, $message, var_export($context, true)),
+            sprintf('[%s] %s %s', $level, $message, count($context) > 0 ? var_export($context, true) : ''),
             array(
                 'source' => $this->gateway->id,
                 '_legacy' => true,
@@ -403,6 +403,9 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             }
         }
 
+        // Is Gift Card
+        $result[RiskIndicatorInterface::GIFT_CARD_PURCHASE] = false;
+
         // @todo Add features of WooThemes Order Delivery and Pre-Orders WooCommerce Extensions
 
         return apply_filters('swedbank_pay_risk_indicator', $result, $order, $this);
@@ -571,6 +574,8 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
         if (!$token->get_id()) {
             throw new \Exception(__('There was a problem adding the card.', 'swedbank-pay-woocommerce-payments'));
         }
+
+        $this->log('info', 'Token has been saved', [$token->get_id()]);
 
         // Add payment token
         if ($order_id) {

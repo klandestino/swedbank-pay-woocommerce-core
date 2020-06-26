@@ -87,6 +87,63 @@ trait Checkout
     }
 
     /**
+     * Initiate Payment Order Verify
+     *
+     * @param mixed $orderId
+     *
+     * @return Response
+     * @throws Exception
+     */
+    public function initiatePaymentOrderVerify($orderId)
+    {
+        /** @var Order $order */
+        $order = $this->getOrder($orderId);
+
+        $urls = $this->getPlatformUrls($orderId);
+
+        $params = [
+            'paymentorder' => [
+                'operation' => self::OPERATION_VERIFY,
+                'currency' => $order->getCurrency(),
+                'description' => 'Verification of Credit Card',
+                'payerReference' => $order->getPayerReference(),
+                'generateRecurrenceToken' => true,
+                'userAgent' => $order->getHttpUserAgent(),
+                'language' => $order->getLanguage(),
+                'urls' => [
+                    'hostUrls' => $urls->getHostUrls(),
+                    'completeUrl' => $urls->getCompleteUrl(),
+                    'cancelUrl' => $urls->getCancelUrl(),
+                    'callbackUrl' => $urls->getCallbackUrl(),
+                    'termsOfServiceUrl' => $this->configuration->getTermsUrl()
+                ],
+                'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
+                'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),
+                'cardholder' => $order->getCardHolderInformation(),
+                'creditCard' => [
+                    'rejectCreditCards' => $this->configuration->getRejectCreditCards(),
+                    'rejectDebitCards' => $this->configuration->getRejectDebitCards(),
+                    'rejectConsumerCards' => $this->configuration->getRejectConsumerCards(),
+                    'rejectCorporateCards' => $this->configuration->getRejectCorporateCards()
+                ],
+                'metadata' => [
+                    'order_id' => $order->getOrderId()
+                ],
+            ]
+        ];
+
+        try {
+            $result = $this->request('POST', '/psp/paymentorders', $params);
+        } catch (\Exception $e) {
+            $this->log(LogLevel::DEBUG, sprintf('%s::%s: API Exception: %s', __CLASS__, __METHOD__, $e->getMessage()));
+
+            throw new Exception($e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
      * Initiate Payment Order Recurrent Payment
      *
      * @param mixed $orderId
@@ -101,7 +158,7 @@ trait Checkout
         $order = $this->getOrder($orderId);
 
         $params = [
-            'payment' => [
+            'paymentorder' => [
                 'operation' => self::OPERATION_RECUR,
                 'recurrenceToken' => $recurrenceToken,
                 'intent' => $this->configuration->getAutoCapture() ? self::INTENT_AUTOCAPTURE : self::INTENT_AUTHORIZATION,
@@ -181,11 +238,11 @@ trait Checkout
      */
     public function getPaymentIdByPaymentOrder($paymentOrderId)
     {
-        $payments = $this->request('GET', $paymentOrderId . '/payments');
-        if (isset($payments['payments'])) {
-            foreach ($payments['payments']['paymentList'] as $payment) {
-                // Use the first item
-                return $payment['id'];
+        $paymentOrder = $this->request('GET', $paymentOrderId);
+        if (isset($paymentOrder['paymentOrder'])) {
+            $currentPayment = $this->request('GET', $paymentOrder['paymentOrder']['currentPayment']['id']);
+            if (isset($currentPayment['payment'])) {
+                return $currentPayment['payment']['id'];
             }
         }
 

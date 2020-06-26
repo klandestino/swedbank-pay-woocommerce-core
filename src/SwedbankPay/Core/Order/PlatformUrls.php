@@ -10,6 +10,8 @@ use SwedbankPay\Core\Data;
  * @method string getCompleteUrl()
  * @method string getCancelUrl()
  * @method string getCallbackUrl()
+ * @method string getTermsUrl()
+ * @method string getLogoUrl()
  */
 class PlatformUrls extends Data implements PlatformUrlsInterface
 {

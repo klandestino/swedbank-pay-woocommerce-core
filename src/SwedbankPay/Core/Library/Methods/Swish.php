@@ -49,7 +49,7 @@ trait Swish
                     'callbackUrl' => $urls->getCallbackUrl(),
                     'termsOfServiceUrl' => $this->configuration->getTermsUrl(),
                     // 50px height and 400px width. Require https.
-                    //'logoUrl'     => "https://example.com/logo.png",// @todo
+                    'logoUrl'     => $this->configuration->getLogoUrl(),
                 ],
                 'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
                 'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),

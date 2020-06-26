@@ -80,7 +80,8 @@ class Adapter extends PaymentAdapter implements PaymentAdapterInterface
             PlatformUrlsInterface::COMPLETE_URL => 'https://example.com/complete',
             PlatformUrlsInterface::CANCEL_URL => 'https://example.com/cancel',
             PlatformUrlsInterface::CALLBACK_URL => 'https://example.com/callback',
-            PlatformUrlsInterface::TERMS_URL => 'https://example.com/terms'
+            PlatformUrlsInterface::TERMS_URL => 'https://example.com/terms',
+            PlatformUrlsInterface::LOGO_URL => 'https://example.com/logo.png'
         ];
     }
 

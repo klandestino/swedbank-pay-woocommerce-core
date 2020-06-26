@@ -8,4 +8,5 @@ interface PlatformUrlsInterface
     const CANCEL_URL = 'cancel_url';
     const CALLBACK_URL = 'callback_url';
     const TERMS_URL = 'terms_url';
+    const LOGO_URL = 'logo_url';
 }

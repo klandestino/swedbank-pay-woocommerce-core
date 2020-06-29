@@ -32,14 +32,14 @@ interface CoreInterface
     public function initiateCreditCardPayment($orderId, $generateToken, $paymentToken);
 
     /**
-     * Initiate a New Credit Card Payment
+     * Initiate Verify Card Payment
      *
      * @param mixed $orderId
      *
      * @return Response
      * @throws Exception
      */
-    public function initiateNewCreditCardPayment($orderId);
+    public function initiateVerifyCreditCardPayment($orderId);
 
     /**
      * Initiate a CreditCard Recurrent Payment

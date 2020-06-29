@@ -43,7 +43,7 @@ class CardTest extends TestCase
     }
 
     public function testInitiateNewCreditCardPayment() {
-        $result = $this->core->initiateNewCreditCardPayment(1);
+        $result = $this->core->initiateVerifyCreditCardPayment(1);
         $this->assertInstanceOf(Response::class, $result);
         $this->assertArrayHasKey('payment', $result);
         $this->assertArrayHasKey('operations', $result);

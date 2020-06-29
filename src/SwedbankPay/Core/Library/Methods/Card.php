@@ -89,14 +89,14 @@ trait Card
     }
 
     /**
-     * Initiate a New Credit Card Payment
+     * Initiate Verify Credit Card Payment
      *
      * @param mixed $orderId
      *
      * @return Response
      * @throws Exception
      */
-    public function initiateNewCreditCardPayment($orderId)
+    public function initiateVerifyCreditCardPayment($orderId)
     {
         /** @var Order $order */
         $order = $this->getOrder($orderId);

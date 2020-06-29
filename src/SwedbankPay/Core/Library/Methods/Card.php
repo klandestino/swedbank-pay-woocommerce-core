@@ -201,4 +201,59 @@ trait Card
 
         return $result;
     }
+
+    /**
+     * Initiate a CreditCard Unscheduled Purchase
+     *
+     * @param mixed $orderId
+     * @param string $recurrenceToken
+     * @param string|null $paymentToken
+     *
+     * @return Response
+     * @throws \Exception
+     */
+    public function initiateCreditCardUnscheduledPurchase($orderId, $recurrenceToken, $paymentToken = null)
+    {
+        /** @var Order $order */
+        $order = $this->getOrder($orderId);
+
+        $params = [
+            'payment' => [
+                'operation' => self::OPERATION_UNSCHEDULED_PURCHASE,
+                'intent' => $this->configuration->getAutoCapture() ? self::INTENT_AUTOCAPTURE : self::INTENT_AUTHORIZATION,
+                'currency' => $order->getCurrency(),
+                'amount' => $order->getAmountInCents(),
+                'vatAmount' => $order->getVatAmountInCents(),
+                'description' => $order->getDescription(),
+                'payerReference' => $order->getPayerReference(),
+                'userAgent' => $order->getHttpUserAgent(),
+                'language' => $order->getLanguage(),
+                'urls' => [
+                    'callbackUrl' => $this->getPlatformUrls($orderId)->getCallbackUrl()
+                ],
+                'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
+                'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),
+                'metadata' => [
+                    'order_id' => $orderId
+                ],
+            ]
+        ];
+
+        // Use Recurrence Token if it's exist
+        if (!empty($recurrenceToken)) {
+            $params['payment']['recurrenceToken'] = $recurrenceToken;
+        } else {
+            $params['payment']['paymentToken'] = $paymentToken;
+        }
+
+        try {
+            $result = $this->request('POST', '/psp/creditcard/payments', $params);
+        } catch (\Exception $e) {
+            $this->log(LogLevel::DEBUG, sprintf('%s::%s: API Exception: %s', __CLASS__, __METHOD__, $e->getMessage()));
+
+            throw $e;
+        }
+
+        return $result;
+    }
 }

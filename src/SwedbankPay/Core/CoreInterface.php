@@ -16,6 +16,7 @@ interface CoreInterface
     const OPERATION_PURCHASE = 'Purchase';
     const OPERATION_VERIFY = 'Verify';
     const OPERATION_RECUR = 'Recur';
+    const OPERATION_UNSCHEDULED_PURCHASE = 'UnscheduledPurchase';
     const OPERATION_FINANCING_CONSUMER = 'FinancingConsumer';
     const TYPE_CREDITCARD = 'CreditCard';
 
@@ -52,6 +53,18 @@ interface CoreInterface
      * @throws \Exception
      */
     public function initiateCreditCardRecur($orderId, $recurrenceToken, $paymentToken = null);
+
+    /**
+     * Initiate a CreditCard Unscheduled Purchase
+     *
+     * @param mixed $orderId
+     * @param string $recurrenceToken
+     * @param string|null $paymentToken
+     *
+     * @return Response
+     * @throws \Exception
+     */
+    public function initiateCreditCardUnscheduledPurchase($orderId, $recurrenceToken, $paymentToken = null);
 
     /**
      * @param mixed $orderId

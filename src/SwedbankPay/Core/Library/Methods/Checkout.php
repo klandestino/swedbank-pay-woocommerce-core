@@ -43,7 +43,8 @@ trait Checkout
                     'completeUrl' => $urls->getCompleteUrl(),
                     'cancelUrl' => $urls->getCancelUrl(),
                     'callbackUrl' => $urls->getCallbackUrl(),
-                    'termsOfServiceUrl' => $this->configuration->getTermsUrl()
+                    'termsOfServiceUrl' => $urls->getTermsUrl(),
+                    'logoUrl' => $urls->getLogoUrl(),
                 ],
                 'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
                 'payer' => $order->getCardHolderInformation(),
@@ -115,7 +116,8 @@ trait Checkout
                     'completeUrl' => $urls->getCompleteUrl(),
                     'cancelUrl' => $urls->getCancelUrl(),
                     'callbackUrl' => $urls->getCallbackUrl(),
-                    'termsOfServiceUrl' => $this->configuration->getTermsUrl()
+                    'termsOfServiceUrl' => $urls->getTermsUrl(),
+                    'logoUrl' => $urls->getLogoUrl(),
                 ],
                 'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
                 'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),

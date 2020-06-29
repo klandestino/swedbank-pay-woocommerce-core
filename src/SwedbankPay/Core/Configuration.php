@@ -15,6 +15,7 @@ namespace SwedbankPay\Core;
  * @method string getLanguage()
  * @method string getSaveCC()
  * @method string getTermsUrl()
+ * @method string getLogoUrl()
  * @method bool getRejectCreditCards()
  * @method bool getRejectDebitCards()
  * @method bool getRejectConsumerCards()

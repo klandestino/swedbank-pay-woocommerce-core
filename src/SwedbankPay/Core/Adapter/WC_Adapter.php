@@ -82,6 +82,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             ConfigurationInterface::LANGUAGE => $this->gateway->culture,
             ConfigurationInterface::SAVE_CC => 'yes' === $this->gateway->save_cc,
             ConfigurationInterface::TERMS_URL => $this->gateway->terms_url,
+            ConfigurationInterface::LOGO_URL => $this->gateway->logo_url,
             ConfigurationInterface::REJECT_CREDIT_CARDS => 'yes' === $this->gateway->reject_credit_cards,
             ConfigurationInterface::REJECT_DEBIT_CARDS => 'yes' === $this->gateway->reject_debit_cards,
             ConfigurationInterface::REJECT_CONSUMER_CARDS => 'yes' === $this->gateway->reject_consumer_cards,
@@ -110,6 +111,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
                 PlatformUrlsInterface::CANCEL_URL => wc_get_account_endpoint_url('payment-methods'),
                 PlatformUrlsInterface::CALLBACK_URL => WC()->api_request_url(get_class($this->gateway)),
                 PlatformUrlsInterface::TERMS_URL => '',
+                PlatformUrlsInterface::LOGO_URL => $this->getConfiguration()[ConfigurationInterface::LOGO_URL],
             );
         }
 
@@ -125,6 +127,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
                 PlatformUrlsInterface::CANCEL_URL => $order->get_cancel_order_url_raw(),
                 PlatformUrlsInterface::CALLBACK_URL => WC()->api_request_url(get_class($this->gateway)),
                 PlatformUrlsInterface::TERMS_URL => $this->getConfiguration()[ConfigurationInterface::TERMS_URL],
+                PlatformUrlsInterface::LOGO_URL => $this->getConfiguration()[ConfigurationInterface::LOGO_URL],
             );
         }
 
@@ -139,6 +142,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
                 WC()->api_request_url(get_class($this->gateway))
             ),
             PlatformUrlsInterface::TERMS_URL => $this->getConfiguration()[ConfigurationInterface::TERMS_URL],
+            PlatformUrlsInterface::LOGO_URL => $this->getConfiguration()[ConfigurationInterface::LOGO_URL],
         );
     }
 

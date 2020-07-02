@@ -34,6 +34,8 @@ namespace SwedbankPay\Core;
  * @method mixed getPaymentOrderId()
  * @method $this setNeedsSaveTokenFlag($value)
  * @method bool getNeedsSaveTokenFlag()
+ * @method $this setNeedsShipping($value)
+ * @method bool getNeedsShipping()
  * @method $this setHttpAccept($value)
  * @method $this setHttpUserAgent($value)
  * @method mixed getHttpUserAgent()
@@ -126,6 +128,7 @@ interface OrderInterface
     const SHIPPING_VAT_AMOUNT = 'shipping_vat_amount';
     const SHIPPING_VAT_RATE = 'shipping_vat_rate';
     const NEEDS_SAVE_TOKEN_FLAG = 'needs_save_token_flag';
+    const NEEDS_SHIPPING = 'needs_shipping';
 
     /**
      * Customer Fields

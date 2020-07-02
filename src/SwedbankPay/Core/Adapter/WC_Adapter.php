@@ -85,6 +85,8 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             ConfigurationInterface::LOGO_URL => $this->gateway->logo_url,
             ConfigurationInterface::USE_PAYER_INFO => property_exists($this->gateway, 'use_payer_info') ?
                 'yes' === $this->gateway->use_payer_info : true,
+            ConfigurationInterface::USE_CARDHOLDER_INFO => property_exists($this->gateway, 'use_cardholder_info') ?
+                'yes' === $this->gateway->use_cardholder_info : true,
             ConfigurationInterface::REJECT_CREDIT_CARDS => 'yes' === $this->gateway->reject_credit_cards,
             ConfigurationInterface::REJECT_DEBIT_CARDS => 'yes' === $this->gateway->reject_debit_cards,
             ConfigurationInterface::REJECT_CONSUMER_CARDS => 'yes' === $this->gateway->reject_consumer_cards,

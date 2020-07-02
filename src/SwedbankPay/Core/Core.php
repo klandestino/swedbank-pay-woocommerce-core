@@ -70,6 +70,7 @@ class Core implements CoreInterface
             ConfigurationInterface::TERMS_URL => '',
             ConfigurationInterface::LOGO_URL => '',
             ConfigurationInterface::USE_PAYER_INFO => true,
+            ConfigurationInterface::USE_CARDHOLDER_INFO => true,
             ConfigurationInterface::REJECT_CREDIT_CARDS => false,
             ConfigurationInterface::REJECT_DEBIT_CARDS => false,
             ConfigurationInterface::REJECT_CONSUMER_CARDS => false,

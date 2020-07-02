@@ -127,7 +127,6 @@ trait Checkout
                 ],
                 'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
                 'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),
-                'cardholder' => $order->getCardHolderInformation(),
                 'creditCard' => [
                     'rejectCreditCards' => $this->configuration->getRejectCreditCards(),
                     'rejectDebitCards' => $this->configuration->getRejectDebitCards(),
@@ -139,6 +138,10 @@ trait Checkout
                 ],
             ]
         ];
+
+        if ($this->configuration->getUseCardholderInfo()) {
+            $params['paymentorder']['cardholder'] = $order->getCardHolderInformation();
+        }
 
         try {
             $result = $this->request('POST', '/psp/paymentorders', $params);

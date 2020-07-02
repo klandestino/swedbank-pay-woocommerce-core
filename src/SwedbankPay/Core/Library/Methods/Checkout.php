@@ -47,7 +47,6 @@ trait Checkout
                     'logoUrl' => $urls->getLogoUrl(),
                 ],
                 'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
-                'payer' => $order->getCardHolderInformation(),
                 'orderItems' => $order->getItems(),
                 'metadata' => [
                     'order_id' => $order->getOrderId()
@@ -65,11 +64,18 @@ trait Checkout
             ]
         ];
 
+        // Add payer info
+        if ($this->configuration->getUsePayerInfo()) {
+            $params['paymentorder']['payer'] = $order->getCardHolderInformation();
+        }
+
         // Add consumerProfileRef if exists
         if (!empty($consumerProfileRef)) {
-            $params['paymentorder']['payer'] = [
-                'consumerProfileRef' => $consumerProfileRef
-            ];
+            if (!isset($params['paymentorder']['payer'])) {
+                $params['paymentorder']['payer'] = [];
+            }
+
+            $params['paymentorder']['payer']['consumerProfileRef'] = $consumerProfileRef;
         }
 
         try {

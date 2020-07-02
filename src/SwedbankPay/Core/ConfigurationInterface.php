@@ -16,6 +16,7 @@ namespace SwedbankPay\Core;
  * @method string getSaveCC()
  * @method string getTermsUrl()
  * @method string getLogoUrl()
+ * @method bool getUsePayerInfo()
  * @method bool getRejectCreditCards()
  * @method bool getRejectDebitCards()
  * @method bool getRejectConsumerCards()
@@ -34,6 +35,7 @@ interface ConfigurationInterface
     const SAVE_CC = 'save_cc';
     const TERMS_URL = 'terms_url';
     const LOGO_URL = 'logo_url';
+    const USE_PAYER_INFO = 'user_payer_info';
 
     const REJECT_CREDIT_CARDS = 'reject_credit_cards';
     const REJECT_DEBIT_CARDS = 'reject_debit_cards';

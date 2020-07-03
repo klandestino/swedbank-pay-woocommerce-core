@@ -420,6 +420,17 @@ trait OrderAction
     }
 
     /**
+     * Add Order Note.
+     *
+     * @param mixed $orderId
+     * @param string $message
+     */
+    public function addOrderNote($orderId, $message)
+    {
+        $this->adapter->addOrderNote($orderId, $message);
+    }
+
+    /**
      * Fetch Transactions related to specific order, process transactions and
      * update order status.
      *

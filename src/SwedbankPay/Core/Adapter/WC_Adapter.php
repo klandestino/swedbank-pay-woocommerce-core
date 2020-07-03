@@ -546,6 +546,18 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
     }
 
     /**
+     * Add Order Note.
+     *
+     * @param mixed $order_id
+     * @param string $message
+     */
+    public function addOrderNote($order_id, $message)
+    {
+        $order = wc_get_order($order_id);
+        $order->add_order_note($message);
+    }
+
+    /**
      * Save Transaction data.
      *
      * @param mixed $order_id

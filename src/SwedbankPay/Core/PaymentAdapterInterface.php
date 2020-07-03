@@ -83,6 +83,14 @@ interface PaymentAdapterInterface
     public function updateOrderStatus($orderId, $status, $message = null, $transactionId = null);
 
     /**
+     * Add Order Note.
+     *
+     * @param mixed $orderId
+     * @param string $message
+     */
+    public function addOrderNote($orderId, $message);
+
+    /**
      * Save Transaction data.
      *
      * @param mixed $orderId

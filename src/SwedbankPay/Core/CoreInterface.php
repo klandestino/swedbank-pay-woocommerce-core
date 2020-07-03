@@ -248,6 +248,14 @@ interface CoreInterface
     public function updateOrderStatus($orderId, $status, $message = null, $transactionId = null);
 
     /**
+     * Add Order Note.
+     *
+     * @param mixed $orderId
+     * @param string $message
+     */
+    public function addOrderNote($orderId, $message);
+
+    /**
      * Fetch Transactions related to specific order, process transactions and
      * update order status.
      *

@@ -220,6 +220,17 @@ class Adapter extends PaymentAdapter implements PaymentAdapterInterface
     }
 
     /**
+     * Add Order Note.
+     *
+     * @param mixed $orderId
+     * @param string $message
+     */
+    public function addOrderNote($orderId, $message)
+    {
+        // @todo
+    }
+
+    /**
      * Save Transaction data.
      *
      * @param mixed $orderId

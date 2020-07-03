@@ -26,6 +26,7 @@ namespace SwedbankPay\Core\Api;
  */
 interface TransactionInterface
 {
+    const TYPE_VERIFICATION = 'Verification';
     const TYPE_AUTHORIZATION = 'Authorization';
     const TYPE_CAPTURE = 'Capture';
     const TYPE_SALE = 'Sale';

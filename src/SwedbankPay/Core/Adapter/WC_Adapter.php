@@ -83,6 +83,10 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             ConfigurationInterface::SAVE_CC => 'yes' === $this->gateway->save_cc,
             ConfigurationInterface::TERMS_URL => $this->gateway->terms_url,
             ConfigurationInterface::LOGO_URL => $this->gateway->logo_url,
+            ConfigurationInterface::USE_PAYER_INFO => property_exists($this->gateway, 'use_payer_info') ?
+                'yes' === $this->gateway->use_payer_info : true,
+            ConfigurationInterface::USE_CARDHOLDER_INFO => property_exists($this->gateway, 'use_cardholder_info') ?
+                'yes' === $this->gateway->use_cardholder_info : true,
             ConfigurationInterface::REJECT_CREDIT_CARDS => 'yes' === $this->gateway->reject_credit_cards,
             ConfigurationInterface::REJECT_DEBIT_CARDS => 'yes' === $this->gateway->reject_debit_cards,
             ConfigurationInterface::REJECT_CONSUMER_CARDS => 'yes' === $this->gateway->reject_consumer_cards,
@@ -166,6 +170,9 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
         // Get order items
         $items = array();
 
+        // Does an order need shipping?
+        $needs_shipping = false;
+
         foreach ($order->get_items() as $order_item) {
             /** @var WC_Order_Item_Product $order_item */
             $price = $order->get_line_subtotal($order_item, false, false);
@@ -200,6 +207,12 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             }
 
             $product_name = trim($order_item->get_name());
+
+            // Check is product shippable
+            $product = $order_item->get_product();
+            if ( $product && $product->needs_shipping() ) {
+                $needs_shipping = true;
+            }
 
             $items[] = array(
                 // The field Reference must match the regular expression '[\\w-]*'
@@ -329,6 +342,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             OrderInterface::PAYMENT_ORDER_ID => $order->get_meta('_payex_paymentorder_id'),
             OrderInterface::NEEDS_SAVE_TOKEN_FLAG => '1' === $order->get_meta('_payex_generate_token') &&
                 0 === count($order->get_payment_tokens()),
+            OrderInterface::NEEDS_SHIPPING => $needs_shipping,
 
             OrderInterface::HTTP_ACCEPT => isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : null,
             OrderInterface::HTTP_USER_AGENT => $order->get_customer_user_agent(),

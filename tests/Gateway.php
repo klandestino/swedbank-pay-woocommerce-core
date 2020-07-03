@@ -53,6 +53,21 @@ class Gateway
     public $terms_url = 'https://example.com';
 
     /**
+     * @var string
+     */
+    public $logo_url = 'https://example.com/logo.png';
+
+    /**
+     * @var bool
+     */
+    public $use_payer_info = true;
+
+    /**
+     * @var bool
+     */
+    public $use_cardholder_info = true;
+
+    /**
      * @var bool
      */
     public $reject_credit_cards = false;

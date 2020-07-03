@@ -33,6 +33,8 @@ namespace SwedbankPay\Core;
  * @method mixed getPaymentOrderId()
  * @method $this setNeedsSaveTokenFlag($value)
  * @method bool getNeedsSaveTokenFlag()
+ * @method $this setNeedsShipping($value)
+ * @method bool getNeedsShipping()
  * @method $this setHttpAccept($value)
  * @method $this setHttpUserAgent($value)
  * @method mixed getHttpUserAgent()
@@ -166,30 +168,29 @@ class Order extends Data implements OrderInterface
     }
 
     /**
+     * Order require shipping
+     *
+     * @return bool
+     */
+    public function needsShipping()
+    {
+        return $this->getNeedsShipping();
+    }
+
+    /**
      * Get card holder's information.
      *
      * @return array
      */
     public function getCardHolderInformation()
     {
-        return [
+        $info = [
             'firstName' => $this->getBillingFirstName(),
             'lastName' => $this->getBillingLastName(),
             'email' => $this->getBillingEmail(),
             'msisdn' => $this->getBillingPhone(),
             'homePhoneNumber' => $this->getBillingPhone(),
             'workPhoneNumber' => $this->getBillingPhone(),
-            'shippingAddress' => [
-                'firstName' => $this->getShippingFirstName(),
-                'lastName' => $this->getShippingLastName(),
-                'email' => $this->getShippingEmail(),
-                'msisdn' => $this->getShippingPhone(),
-                'streetAddress' => implode(', ', [$this->getShippingAddress1(), $this->getShippingAddress2()]),
-                'coAddress' => '',
-                'city' => $this->getShippingCity(),
-                'zipCode' => $this->getShippingPostcode(),
-                'countryCode' => $this->getShippingCountryCode()
-            ],
             'billingAddress' => [
                 'firstName' => $this->getBillingFirstName(),
                 'lastName' => $this->getBillingLastName(),
@@ -202,5 +203,22 @@ class Order extends Data implements OrderInterface
                 'countryCode' => $this->getBillingCountryCode()
             ],
         ];
+
+        // Add shipping address if needs
+        if ($this->needsShipping()) {
+            $info['shippingAddress'] = [
+                'firstName' => $this->getShippingFirstName(),
+                'lastName' => $this->getShippingLastName(),
+                'email' => $this->getShippingEmail(),
+                'msisdn' => $this->getShippingPhone(),
+                'streetAddress' => implode(', ', [$this->getShippingAddress1(), $this->getShippingAddress2()]),
+                'coAddress' => '',
+                'city' => $this->getShippingCity(),
+                'zipCode' => $this->getShippingPostcode(),
+                'countryCode' => $this->getShippingCountryCode()
+            ];
+        }
+
+        return $info;
     }
 }

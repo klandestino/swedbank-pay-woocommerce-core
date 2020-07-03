@@ -47,7 +47,6 @@ trait Checkout
                     'logoUrl' => $urls->getLogoUrl(),
                 ],
                 'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
-                'payer' => $order->getCardHolderInformation(),
                 'orderItems' => $order->getItems(),
                 'metadata' => [
                     'order_id' => $order->getOrderId()
@@ -65,11 +64,18 @@ trait Checkout
             ]
         ];
 
+        // Add payer info
+        if ($this->configuration->getUsePayerInfo()) {
+            $params['paymentorder']['payer'] = $order->getCardHolderInformation();
+        }
+
         // Add consumerProfileRef if exists
         if (!empty($consumerProfileRef)) {
-            $params['paymentorder']['payer'] = [
-                'consumerProfileRef' => $consumerProfileRef
-            ];
+            if (!isset($params['paymentorder']['payer'])) {
+                $params['paymentorder']['payer'] = [];
+            }
+
+            $params['paymentorder']['payer']['consumerProfileRef'] = $consumerProfileRef;
         }
 
         try {
@@ -121,7 +127,6 @@ trait Checkout
                 ],
                 'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
                 'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),
-                'cardholder' => $order->getCardHolderInformation(),
                 'creditCard' => [
                     'rejectCreditCards' => $this->configuration->getRejectCreditCards(),
                     'rejectDebitCards' => $this->configuration->getRejectDebitCards(),
@@ -133,6 +138,10 @@ trait Checkout
                 ],
             ]
         ];
+
+        if ($this->configuration->getUseCardholderInfo()) {
+            $params['paymentorder']['cardholder'] = $order->getCardHolderInformation();
+        }
 
         try {
             $result = $this->request('POST', '/psp/paymentorders', $params);

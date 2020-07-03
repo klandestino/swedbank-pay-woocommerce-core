@@ -55,7 +55,6 @@ trait Card
                 ],
                 'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
                 'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),
-                'cardholder' => $order->getCardHolderInformation(),
                 'creditCard' => [
                     'rejectCreditCards' => $this->configuration->getRejectCreditCards(),
                     'rejectDebitCards' => $this->configuration->getRejectDebitCards(),
@@ -70,6 +69,10 @@ trait Card
                 ],
             ]
         ];
+
+        if ($this->configuration->getUseCardholderInfo()) {
+            $params['payment']['cardholder'] = $order->getCardHolderInformation();
+        }
 
         if ($paymentToken) {
             $params['payment']['paymentToken'] = $paymentToken;
@@ -123,7 +126,6 @@ trait Card
                 ],
                 'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
                 'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),
-                'cardholder' => $order->getCardHolderInformation(),
                 'creditCard' => [
                     'rejectCreditCards' => $this->configuration->getRejectCreditCards(),
                     'rejectDebitCards' => $this->configuration->getRejectDebitCards(),
@@ -135,6 +137,10 @@ trait Card
                 ],
             ]
         ];
+
+        if ($this->configuration->getUseCardholderInfo()) {
+            $params['payment']['cardholder'] = $order->getCardHolderInformation();
+        }
 
         try {
             $result = $this->request('POST', '/psp/creditcard/payments', $params);

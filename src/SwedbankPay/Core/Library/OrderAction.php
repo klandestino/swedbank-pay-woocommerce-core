@@ -393,6 +393,18 @@ trait OrderAction
     }
 
     /**
+     * Check if order status can be updated.
+     *
+     * @param mixed $orderId
+     * @param string $status
+     * @param string|null $transactionId
+     * @return bool
+     */
+    public function canUpdateOrderStatus($orderId, $status, $transactionId = null) {
+        return $this->adapter->canUpdateOrderStatus($orderId, $status, $transactionId);
+    }
+
+    /**
      * Update Order Status.
      *
      * @param mixed $orderId
@@ -402,7 +414,9 @@ trait OrderAction
      */
     public function updateOrderStatus($orderId, $status, $message = null, $transactionId = null)
     {
-        $this->adapter->updateOrderStatus($orderId, $status, $message, $transactionId);
+        if ($this->canUpdateOrderStatus($orderId, $status)) {
+            $this->adapter->updateOrderStatus($orderId, $status, $message, $transactionId);
+        }
     }
 
     /**

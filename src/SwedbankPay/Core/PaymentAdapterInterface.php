@@ -63,6 +63,16 @@ interface PaymentAdapterInterface
     public function getPayeeInfo($orderId);
 
     /**
+     * Check if order status can be updated.
+     *
+     * @param mixed $orderId
+     * @param string $status
+     * @param string|null $transactionId
+     * @return bool
+     */
+    public function canUpdateOrderStatus($orderId, $status, $transactionId = null);
+
+    /**
      * Update Order Status.
      *
      * @param mixed $orderId

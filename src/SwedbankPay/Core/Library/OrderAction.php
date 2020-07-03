@@ -6,6 +6,7 @@ use SwedbankPay\Core\Api\Response;
 use SwedbankPay\Core\Api\Transaction;
 use SwedbankPay\Core\Api\TransactionInterface;
 use SwedbankPay\Core\Exception;
+use SwedbankPay\Core\Log\LogLevel;
 use SwedbankPay\Core\Order;
 use SwedbankPay\Core\OrderInterface;
 
@@ -402,6 +403,50 @@ trait OrderAction
     public function updateOrderStatus($orderId, $status, $message = null, $transactionId = null)
     {
         $this->adapter->updateOrderStatus($orderId, $status, $message, $transactionId);
+    }
+
+    /**
+     * Fetch Transactions related to specific order, process transactions and
+     * update order status.
+     *
+     * @param mixed $orderId
+     * @param string|null $transactionId
+     * @throws Exception
+     */
+    public function fetchTransactionsAndUpdateOrder($orderId, $transactionId = null)
+    {
+        /** @var Order $order */
+        $order = $this->getOrder($orderId);
+
+        $paymentId = $order->getPaymentId();
+        if (empty($paymentId)) {
+            throw new Exception('Unable to get payment ID');
+        }
+
+        // Fetch transactions list
+        $transactions = $this->fetchTransactionsList($paymentId);
+        $this->saveTransactions($orderId, $transactions);
+
+        // Extract transaction from list
+        if ($transactionId) {
+            $transaction = $this->findTransaction('number', $transactionId);
+            if ( ! $transaction ) {
+                throw new Exception(sprintf('Failed to fetch transaction number #%s', $transactionId));
+            }
+
+            $transactions = [ $transaction ];
+        }
+
+        // Process transactions
+        foreach ($transactions as $transaction) {
+            try {
+                $this->processTransaction($orderId, $transaction);
+            } catch (Exception $e) {
+                $this->log(LogLevel::ERROR, sprintf('%s::%s: API Exception: %s', __CLASS__, __METHOD__, $e->getMessage()));
+
+                continue;
+            }
+        }
     }
 
     /**

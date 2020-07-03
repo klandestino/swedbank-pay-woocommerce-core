@@ -151,21 +151,101 @@ interface CoreInterface
      */
     public function refundInvoice($orderId, $amount = null, $vatAmount = 0);
 
+    /**
+     * Can Capture.
+     *
+     * @param mixed $orderId
+     * @param float|int|null $amount
+     *
+     * @return bool
+     */
     public function canCapture($orderId, $amount = null);
 
+    /**
+     * Can Cancel.
+     *
+     * @param mixed $orderId
+     * @param float|int|null $amount
+     *
+     * @return bool
+     */
     public function canCancel($orderId, $amount = null);
 
+    /**
+     * Can Refund.
+     *
+     * @param mixed $orderId
+     * @param float|int|null $amount
+     *
+     * @return bool
+     */
     public function canRefund($orderId, $amount = null);
 
+    /**
+     * Capture.
+     *
+     * @param mixed $orderId
+     * @param mixed $amount
+     * @param mixed $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
     public function capture($orderId, $amount = null);
 
+    /**
+     * Cancel.
+     *
+     * @param mixed $orderId
+     * @param mixed $amount
+     * @param mixed $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
     public function cancel($orderId, $amount = null);
 
+    /**
+     * Refund.
+     *
+     * @param mixed $orderId
+     * @param mixed $amount
+     * @param mixed $vatAmount
+     *
+     * @return Response
+     * @throws Exception
+     */
     public function refund($orderId, $amount = null, $reason = null);
 
+    /**
+     * Abort Payment.
+     *
+     * @param mixed $orderId
+     *
+     * @return Response
+     * @throws Exception
+     */
     public function abort($orderId);
 
+    /**
+     * Update Order Status.
+     *
+     * @param mixed $orderId
+     * @param string $status
+     * @param string|null $message
+     * @param string|null $transactionId
+     */
     public function updateOrderStatus($orderId, $status, $message = null, $transactionId = null);
+
+    /**
+     * Fetch Transactions related to specific order, process transactions and
+     * update order status.
+     *
+     * @param mixed $orderId
+     * @param string|null $transactionId
+     * @throws Exception
+     */
+    public function fetchTransactionsAndUpdateOrder($orderId, $transactionId = null);
 
     /**
      * @param $orderId

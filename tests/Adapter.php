@@ -195,6 +195,18 @@ class Adapter extends PaymentAdapter implements PaymentAdapterInterface
     }
 
     /**
+     * Check if order status can be updated.
+     *
+     * @param mixed $orderId
+     * @param string $status
+     * @param string|null $transactionId
+     * @return bool
+     */
+    public function canUpdateOrderStatus($orderId, $status, $transactionId = null) {
+        return true;
+    }
+
+    /**
      * Update Order Status.
      *
      * @param mixed $orderId
@@ -203,6 +215,17 @@ class Adapter extends PaymentAdapter implements PaymentAdapterInterface
      * @param mixed|null $transactionId
      */
     public function updateOrderStatus($orderId, $status, $message = null, $transactionId = null)
+    {
+        // @todo
+    }
+
+    /**
+     * Add Order Note.
+     *
+     * @param mixed $orderId
+     * @param string $message
+     */
+    public function addOrderNote($orderId, $message)
     {
         // @todo
     }

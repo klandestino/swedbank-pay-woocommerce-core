@@ -446,6 +446,34 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
     }
 
     /**
+     * Check if order status can be updated.
+     *
+     * @param mixed $orderId
+     * @param string $status
+     * @param string|null $transactionId
+     * @return bool
+     */
+    public function canUpdateOrderStatus($order_id, $status, $transaction_id = null) {
+        if ($transaction_id) {
+            $order = wc_get_order($order_id);
+
+            if ($order->get_transaction_id() === $transaction_id) {
+                $this->log(LogLevel::WARNING,
+                    sprintf('Unable to update order status of #%s (%s). Transaction #%s has been processed.',
+                        $order_id,
+                        $status,
+                        $transaction_id
+                    )
+                );
+
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Update Order Status.
      *
      * @param mixed $order_id
@@ -456,12 +484,6 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
     public function updateOrderStatus($order_id, $status, $message = null, $transaction_id = null)
     {
         $order = wc_get_order($order_id);
-
-        if ($order->get_meta('_payex_payment_state') === $status) {
-            $this->log(LogLevel::WARNING, sprintf('Action of Transaction #%s already performed', $transaction_id));
-
-            return;
-        }
 
         if ($transaction_id) {
             $order->update_meta_data('_transaction_id', $transaction_id);
@@ -521,6 +543,18 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
                 $order->update_status('failed', $message);
                 break;
         }
+    }
+
+    /**
+     * Add Order Note.
+     *
+     * @param mixed $order_id
+     * @param string $message
+     */
+    public function addOrderNote($order_id, $message)
+    {
+        $order = wc_get_order($order_id);
+        $order->add_order_note($message);
     }
 
     /**

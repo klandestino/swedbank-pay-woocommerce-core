@@ -142,8 +142,20 @@ trait PaymentInfo
             throw new Exception($e->getMessage());
         }
 
+        $transactionList = $result['transactions']['transactionList'];
+
+        // Sort by "created" field using array_multisort
+        $sortingFlow = array();
+        foreach ($transactionList as $id => $transaction) {
+            $sortingFlow[$id] = strtotime($transaction['created']);
+        }
+
+        // Sort
+        array_multisort($sortingFlow, SORT_ASC, SORT_NUMERIC, $transactionList);
+        unset($sortingFlow);
+
         $transactions = [];
-        foreach ($result['transactions']['transactionList'] as $transaction) {
+        foreach ($transactionList as $transaction) {
             $transactions[] = new Transaction($transaction);
         }
 

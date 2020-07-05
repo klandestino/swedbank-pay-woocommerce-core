@@ -393,6 +393,18 @@ trait OrderAction
     }
 
     /**
+     * Check if order status can be updated.
+     *
+     * @param mixed $orderId
+     * @param string $status
+     * @param string|null $transactionId
+     * @return bool
+     */
+    public function canUpdateOrderStatus($orderId, $status, $transactionId = null) {
+        return $this->adapter->canUpdateOrderStatus($orderId, $status, $transactionId);
+    }
+
+    /**
      * Update Order Status.
      *
      * @param mixed $orderId
@@ -402,7 +414,20 @@ trait OrderAction
      */
     public function updateOrderStatus($orderId, $status, $message = null, $transactionId = null)
     {
-        $this->adapter->updateOrderStatus($orderId, $status, $message, $transactionId);
+        if ($this->canUpdateOrderStatus($orderId, $status)) {
+            $this->adapter->updateOrderStatus($orderId, $status, $message, $transactionId);
+        }
+    }
+
+    /**
+     * Add Order Note.
+     *
+     * @param mixed $orderId
+     * @param string $message
+     */
+    public function addOrderNote($orderId, $message)
+    {
+        $this->adapter->addOrderNote($orderId, $message);
     }
 
     /**
@@ -470,6 +495,54 @@ trait OrderAction
 
         // Apply action
         switch ($transaction->getType()) {
+            case TransactionInterface::TYPE_VERIFICATION:
+                if ($transaction->isFailed()) {
+                    $this->addOrderNote($orderId,
+                        sprintf('Verification has been failed. Reason: %s.',
+                            $transaction->getFailedDetails()
+                        )
+                    );
+
+                    break;
+                }
+
+                if ($transaction->isPending()) {
+                    $this->addOrderNote(
+                        $orderId,
+                        'Verification transaction is pending.'
+                    );
+
+                    break;
+                }
+
+                // Save Payment Token
+                if ($order->needsSaveToken()) {
+                    $verifications = $this->fetchVerificationList($order->getPaymentId());
+                    foreach ($verifications as $verification) {
+                        if ($verification->getPaymentToken() || $verification->getRecurrenceToken()) {
+                            // Add payment token
+                            $this->adapter->savePaymentToken(
+                                $order->getCustomerId(),
+                                $verification->getPaymentToken(),
+                                $verification->getRecurrenceToken(),
+                                $verification->getCardBrand(),
+                                $verification->getMaskedPan(),
+                                $verification->getExpireDate(),
+                                $order->getOrderId()
+                            );
+
+                            $this->addOrderNote(
+                                $orderId,
+                                sprintf('Card %s has been saved.', $verification->getMaskedPan())
+                            );
+
+                            // Use the first item only
+                            break;
+                        }
+                    }
+                }
+
+                break;
             case TransactionInterface::TYPE_AUTHORIZATION:
                 if ($transaction->isFailed()) {
                     $this->updateOrderStatus(
@@ -514,6 +587,11 @@ trait OrderAction
                                 $authorization->getMaskedPan(),
                                 $authorization->getExpireDate(),
                                 $order->getOrderId()
+                            );
+
+                            $this->addOrderNote(
+                                $orderId,
+                                sprintf('Card %s has been saved.', $authorization->getMaskedPan())
                             );
 
                             // Use the first item only

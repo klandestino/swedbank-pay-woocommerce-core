@@ -2,6 +2,15 @@
 
 namespace SwedbankPay\Core\Order;
 
+/**
+ * Interface PlatformUrlsInterface
+ * @package SwedbankPay\Core\Order
+ * @method string getCompleteUrl()
+ * @method string getCancelUrl()
+ * @method string getCallbackUrl()
+ * @method string getTermsUrl()
+ * @method string getLogoUrl()
+ */
 interface PlatformUrlsInterface
 {
     const COMPLETE_URL = 'complete_url';

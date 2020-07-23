@@ -477,20 +477,30 @@ trait Checkout
 
         switch ($transaction['state']) {
             case 'Completed':
-                $this->updateOrderStatus(
-                    $orderId,
-                    OrderInterface::STATUS_REFUNDED,
-                    sprintf('Refunded: %s.', $amount),
-                    $transaction['number']
-                );
+                $info = $this->fetchPaymentInfo($paymentOrderId);
+
+                if ((int) $info['paymentOrder']['remainingReversalAmount'] === 0) {
+                    $this->updateOrderStatus(
+                        $orderId,
+                        OrderInterface::STATUS_REFUNDED,
+                        sprintf('Refunded: %s. Transaction state: %s', $amount, $transaction['state']),
+                        $transaction['number']
+                    );
+                } else {
+                    $this->addOrderNote(
+                        $orderId,
+                        sprintf('Refunded: %s. Transaction state: %s', $amount, $transaction['state'])
+                    );
+                }
+
                 break;
             case 'Initialized':
             case 'AwaitingActivity':
-                $this->updateOrderStatus(
+                $this->addOrderNote(
                     $orderId,
-                    OrderInterface::STATUS_CANCELLED,
-                    sprintf('Transaction reversal status: %s.', $transaction['state'])
+                    sprintf('Refunded: %s. Transaction state: %s', $amount, $transaction['state'])
                 );
+
                 break;
             case 'Failed':
                 $message = isset($transaction['failedReason']) ? $transaction['failedReason'] : 'Refund is failed.';

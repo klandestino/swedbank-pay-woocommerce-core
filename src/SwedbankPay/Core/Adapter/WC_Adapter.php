@@ -331,9 +331,13 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             OrderInterface::VAT_RATE => 0, // Can be different
             OrderInterface::SHIPPING_AMOUNT => 0, // @todo
             OrderInterface::SHIPPING_VAT_AMOUNT => 0, // @todo
-            OrderInterface::DESCRIPTION => sprintf(
-            /* translators: 1: order id */ __('Order #%1$s', 'swedbank-pay-woocommerce-payments'),
-                $order->get_order_number()
+            OrderInterface::DESCRIPTION => apply_filters(
+	            'swedbank_pay_payment_description',
+	            sprintf(
+	            /* translators: 1: order id */ __('Order #%1$s', 'swedbank-pay-woocommerce-payments'),
+		            $order->get_order_number()
+	            ),
+	            $order
             ),
             OrderInterface::CURRENCY => $order->get_currency(),
             OrderInterface::STATUS => $order->get_status(),
@@ -354,7 +358,11 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             OrderInterface::BILLING_CITY => $order->get_billing_city(),
             OrderInterface::BILLING_STATE => $order->get_billing_state(),
             OrderInterface::BILLING_POSTCODE => $order->get_billing_postcode(),
-            OrderInterface::BILLING_PHONE => $order->get_billing_phone(),
+            OrderInterface::BILLING_PHONE => apply_filters(
+	            'swedbank_pay_order_billing_phone',
+	            $order->get_billing_phone(),
+	            $order
+            ),
             OrderInterface::BILLING_EMAIL => $order->get_billing_email(),
             OrderInterface::BILLING_FIRST_NAME => $order->get_billing_first_name(),
             OrderInterface::BILLING_LAST_NAME => $order->get_billing_last_name(),
@@ -366,7 +374,11 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             OrderInterface::SHIPPING_CITY => $order->get_shipping_city(),
             OrderInterface::SHIPPING_STATE => $order->get_shipping_state(),
             OrderInterface::SHIPPING_POSTCODE => $order->get_shipping_postcode(),
-            OrderInterface::SHIPPING_PHONE => $order->get_billing_phone(),
+            OrderInterface::SHIPPING_PHONE => apply_filters(
+            	'swedbank_pay_order_billing_phone',
+	            $order->get_billing_phone(),
+	            $order
+            ),
             OrderInterface::SHIPPING_EMAIL => $order->get_billing_email(),
             OrderInterface::SHIPPING_FIRST_NAME => $order->get_shipping_first_name(),
             OrderInterface::SHIPPING_LAST_NAME => $order->get_shipping_last_name(),

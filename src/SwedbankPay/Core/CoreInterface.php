@@ -491,9 +491,10 @@ interface CoreInterface
      * @param mixed $orderId
      * @param int|float|null $amount
      * @param int|float $vatAmount
+     * @param array $items
      *
      * @return Response
      * @throws Exception
      */
-    public function refundCheckout($orderId, $amount = null, $vatAmount = 0);
+    public function refundCheckout($orderId, $amount = null, $vatAmount = 0, array $items = []);
 }

@@ -430,11 +430,12 @@ trait Checkout
      * @param mixed $orderId
      * @param int|float|null $amount
      * @param int|float $vatAmount
+     * @param array $items
      *
      * @return Response
      * @throws Exception
      */
-    public function refundCheckout($orderId, $amount = null, $vatAmount = 0)
+    public function refundCheckout($orderId, $amount = null, $vatAmount = 0, array $items = [])
     {
         /** @var Order $order */
         $order = $this->getOrder($orderId);
@@ -458,6 +459,11 @@ trait Checkout
 
         // @todo Partial Refund
 
+	    // Use all order items if undefined
+	    if (count($items) === 0) {
+		    $items = $order->getItems();
+	    }
+
         $params = [
             'transaction' => [
                 'description' => sprintf( 'Refund for Order #%s', $order->getOrderId() ),
@@ -465,7 +471,7 @@ trait Checkout
                 'vatAmount' => (int)bcmul(100, $vatAmount),
                 'payeeReference' => $this->generatePayeeReference($orderId),
                 'receiptReference' => $this->generatePayeeReference($orderId),
-                'orderItems' => $order->getItems()
+                'orderItems' => $items
             ]
         ];
 

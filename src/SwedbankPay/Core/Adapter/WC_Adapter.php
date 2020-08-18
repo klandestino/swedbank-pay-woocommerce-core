@@ -316,16 +316,20 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
         $shipping_country = isset($countries[$order->get_shipping_country()]) ? $countries[$order->get_shipping_country()] : '';
         $billing_country = isset($countries[$order->get_billing_country()]) ? $countries[$order->get_billing_country()] : '';
 
+        $items = apply_filters('swedbank_pay_order_items', $items, $order);
+
         return array(
             OrderInterface::ORDER_ID => $order->get_id(),
             OrderInterface::AMOUNT => apply_filters(
                 'swedbank_pay_order_amount',
                 $order->get_total(),
+                $items,
                 $order
             ),
             OrderInterface::VAT_AMOUNT => apply_filters(
                 'swedbank_pay_order_vat',
                 $info['vat_amount'],
+	            $items,
                 $order
             ),
             OrderInterface::VAT_RATE => 0, // Can be different
@@ -373,7 +377,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
             OrderInterface::CUSTOMER_ID => (int)$order->get_customer_id(),
             OrderInterface::CUSTOMER_IP => $order->get_customer_ip_address(),
             OrderInterface::PAYER_REFERENCE => $payer_reference,
-            OrderInterface::ITEMS => apply_filters('swedbank_pay_order_items', $items, $order),
+            OrderInterface::ITEMS => $items,
             OrderInterface::LANGUAGE => $this->getConfiguration()[ConfigurationInterface::LANGUAGE],
         );
     }

@@ -37,25 +37,10 @@ trait Mobilepay
                 'currency' => $order->getCurrency(),
                 'prices' => [
                     [
-                        'type' => 'Visa',
+                        'type' => MobilepayInterface::PRICE_TYPE_MOBILEPAY,
                         'amount' => $order->getAmountInCents(),
                         'vatAmount' => $order->getVatAmountInCents()
-                    ],
-                    [
-                        'type' => 'MasterCard',
-                        'amount' => $order->getAmountInCents(),
-                        'vatAmount' => $order->getVatAmountInCents()
-                    ],
-                    [
-                        'type'      => 'Maestro',
-                        'amount'    => $order->getAmountInCents(),
-                        'vatAmount' => $order->getVatAmountInCents(),
-                    ],
-                    [
-                        'type'      => 'Dankort',
-                        'amount'    => $order->getAmountInCents(),
-                        'vatAmount' => $order->getVatAmountInCents(),
-                    ],
+                    ]
                 ],
                 'description' => $order->getDescription(),
                 'payerReference' => $order->getPayerReference(),

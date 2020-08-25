@@ -3,6 +3,8 @@
 namespace SwedbankPay\Core;
 
 use SwedbankPay\Api\Client\Client;
+use SwedbankPay\Core\Library\Methods\Trustly;
+use SwedbankPay\Core\Library\Methods\TrustlyInterface;
 use SwedbankPay\Core\Library\PaymentInfo;
 use SwedbankPay\Core\Library\TransactionAction;
 use SwedbankPay\Core\Library\OrderAction;
@@ -13,13 +15,14 @@ use SwedbankPay\Core\Library\Methods\Vipps;
 use SwedbankPay\Core\Library\Methods\Checkout;
 use SwedbankPay\Core\Library\Methods\Consumer;
 
-class Core implements CoreInterface
+class Core implements CoreInterface, TrustlyInterface
 {
     use PaymentInfo;
     use Card;
     use Invoice;
     use Swish;
     use Vipps;
+    use Trustly;
     use Checkout;
     use Consumer;
     use TransactionAction;

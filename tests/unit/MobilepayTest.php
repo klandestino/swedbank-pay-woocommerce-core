@@ -1,9 +1,27 @@
 <?php
 
 use SwedbankPay\Core\Api\Response;
+use SwedbankPay\Core\Core;
 
 class MobilepayTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        if (!defined('MERCHANT_TOKEN_MOBILEPAY') ||
+            MERCHANT_TOKEN === '<merchant_token>') {
+            $this->fail('MERCHANT_TOKEN_MOBILEPAY not configured in INI file or environment variable.');
+        }
+
+        if (!defined('PAYEE_ID_MOBILEPAY') ||
+            PAYEE_ID === '<payee_id>') {
+            $this->fail('PAYEE_ID_MOBILEPAY not configured in INI file or environment variable.');
+        }
+
+        $this->gateway = new MobilePayGateway();
+        $this->adapter = new Adapter($this->gateway);
+        $this->core = new Core($this->adapter);
+    }
+
     public function testInitiateMobilepayPayment()
     {
         $this->gateway->currency = 'DDK';
@@ -30,14 +48,20 @@ class MobilepayTest extends TestCase
      */
     public function testMobilepayPaymentPaymentPage(Response $response)
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $response->getOperationByRel('update-payment-abort'));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $output = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
+        // Test abort
+        $result = $this->core->request(
+            'PATCH',
+            $response->getOperationByRel('update-payment-abort'),
+            [
+                'payment' => [
+                    'operation' => 'Abort',
+                    'abortReason' => 'CancelledByConsumer'
+                ]
+            ]
+        );
 
-        $this->assertIsString($output);
-        $this->assertEquals(200, $code);
+        $this->assertInstanceOf(Response::class, $result);
+        $this->assertArrayHasKey('state', $result['payment']);
+        $this->assertEquals('Aborted', $result['payment']['state']);
     }
 }

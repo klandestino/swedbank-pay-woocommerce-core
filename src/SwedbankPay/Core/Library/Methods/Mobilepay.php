@@ -7,6 +7,16 @@ use SwedbankPay\Core\Exception;
 use SwedbankPay\Core\Log\LogLevel;
 use SwedbankPay\Core\Order;
 
+use SwedbankPay\Api\Service\Payment\Resource\Collection\PricesCollection;
+use SwedbankPay\Api\Service\Payment\Resource\Collection\Item\PriceItem;
+use SwedbankPay\Api\Service\MobilePay\Request\Purchase;
+use SwedbankPay\Api\Service\MobilePay\Resource\Request\PaymentPayeeInfo;
+use SwedbankPay\Api\Service\MobilePay\Resource\Request\PaymentPrefillInfo;
+use SwedbankPay\Api\Service\MobilePay\Resource\Request\PaymentUrl;
+use SwedbankPay\Api\Service\MobilePay\Resource\Request\Payment;
+use SwedbankPay\Api\Service\MobilePay\Resource\Request\PaymentObject;
+use SwedbankPay\Api\Service\Data\ResponseInterface as ResponseServiceInterface;
+
 /**
  * Trait Mobilepay
  * @package SwedbankPay\Core\Library\Methods
@@ -27,55 +37,59 @@ trait Mobilepay
         /** @var Order $order */
         $order = $this->getOrder($orderId);
 
+        /** @var Order\PlatformUrls $urls */
         $urls = $this->getPlatformUrls($orderId);
 
-        // Process payment
-        $params = [
-            'payment' => [
-                'operation' => self::OPERATION_PURCHASE,
-                'intent' => self::INTENT_AUTHORIZATION,
-                'currency' => $order->getCurrency(),
-                'prices' => [
-                    [
-                        'type' => MobilepayInterface::PRICE_TYPE_MOBILEPAY,
-                        'amount' => $order->getAmountInCents(),
-                        'vatAmount' => $order->getVatAmountInCents()
-                    ]
-                ],
-                'description' => $order->getDescription(),
-                'payerReference' => $order->getPayerReference(),
-                'userAgent' => $order->getHttpUserAgent(),
-                'language' => $order->getLanguage(),
-                'urls' => [
-                    'completeUrl' => $urls->getCompleteUrl(),
-                    'cancelUrl' => $urls->getCancelUrl(),
-                    'callbackUrl' => $urls->getCallbackUrl(),
-                ],
-                'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
-                'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),
-                'metadata' => [
-                    'order_id' => $order->getOrderId()
-                ],
-            ],
-            'mobilepay' => [
-                'shoplogoUrl' => $urls->getLogoUrl()
-            ]
-        ];
+        $url = new PaymentUrl();
+        $url->setCompleteUrl($urls->getCompleteUrl())
+            ->setCancelUrl($urls->getCancelUrl())
+            ->setCallbackUrl($urls->getCallbackUrl())
+            ->setHostUrls($urls->getHostUrls());
 
+        $payeeInfo = new PaymentPayeeInfo($this->getPayeeInfo($orderId)->toArray());
+
+        $prefillInfo = new PaymentPrefillInfo();
         if (!empty($phone)) {
-            $params['payment']['prefillInfo'] = [
-                'msisdn' => $phone
-            ];
+            $prefillInfo->setMsisdn($phone);
         }
 
+        $price = new PriceItem();
+        $price->setType(MobilepayInterface::PRICE_TYPE_MOBILEPAY)
+            ->setAmount($order->getAmountInCents())
+            ->setVatAmount($order->getVatAmountInCents());
+
+        $prices = new PricesCollection();
+        $prices->addItem($price);
+
+        $payment = new Payment();
+        $payment->setOperation(self::OPERATION_PURCHASE)
+            ->setIntent(self::INTENT_AUTHORIZATION)
+            ->setCurrency($order->getCurrency())
+            ->setDescription($order->getDescription())
+            ->setUserAgent($order->getHttpUserAgent())
+            ->setLanguage($order->getLanguage())
+            ->setUrls($url)
+            ->setPayeeInfo($payeeInfo)
+            ->setPrefillInfo($prefillInfo)
+            ->setPrices($prices)
+            ->setPayerReference($order->getPayerReference());
+
+        $paymentObject = new PaymentObject();
+        $paymentObject->setPayment($payment)
+            ->setShoplogoUrl($urls->getLogoUrl());
+
+        $purchaseRequest = new Purchase($paymentObject);
+        $purchaseRequest->setClient($this->client);
+
         try {
-            $result = $this->request('POST', MobilepayInterface::PAYMENT_URL, $params);
+            /** @var ResponseServiceInterface $responseService */
+            $responseService = $purchaseRequest->send();
+
+            return new Response($responseService->getResponseData());
         } catch (\Exception $e) {
             $this->log(LogLevel::DEBUG, sprintf('%s::%s: API Exception: %s', __CLASS__, __METHOD__, $e->getMessage()));
 
             throw new Exception($e->getMessage());
         }
-
-        return $result;
     }
 }

@@ -58,17 +58,24 @@ class Adapter extends PaymentAdapter implements PaymentAdapterInterface
             ConfigurationInterface::AUTO_CAPTURE => $this->gateway->auto_capture,
             ConfigurationInterface::SUBSITE => $this->gateway->subsite,
             ConfigurationInterface::LANGUAGE => $this->gateway->language,
-            ConfigurationInterface::SAVE_CC => $this->gateway->save_cc,
-            ConfigurationInterface::TERMS_URL => $this->gateway->terms_url,
-            ConfigurationInterface::LOGO_URL => $this->gateway->logo_url,
+            ConfigurationInterface::SAVE_CC => property_exists($this->gateway, 'save_cc') ?
+                'yes' === $this->gateway->save_cc : false,
+            ConfigurationInterface::TERMS_URL => property_exists($this->gateway, 'terms_url') ?
+                $this->gateway->terms_url : '',
+            ConfigurationInterface::LOGO_URL => property_exists($this->gateway, 'logo_url') ?
+                $this->gateway->logo_url : '',
             ConfigurationInterface::USE_PAYER_INFO => property_exists($this->gateway, 'use_payer_info') ?
                 'yes' === $this->gateway->use_payer_info : true,
             ConfigurationInterface::USE_CARDHOLDER_INFO => property_exists($this->gateway, 'use_cardholder_info') ?
                 'yes' === $this->gateway->use_cardholder_info : true,
-            ConfigurationInterface::REJECT_CREDIT_CARDS => $this->gateway->reject_credit_cards,
-            ConfigurationInterface::REJECT_DEBIT_CARDS => $this->gateway->reject_debit_cards,
-            ConfigurationInterface::REJECT_CONSUMER_CARDS => $this->gateway->reject_consumer_cards,
-            ConfigurationInterface::REJECT_CORPORATE_CARDS => $this->gateway->reject_corporate_cards,
+            ConfigurationInterface::REJECT_CREDIT_CARDS => property_exists($this->gateway, 'reject_credit_cards') ?
+                'yes' === $this->gateway->reject_credit_cards : true,
+            ConfigurationInterface::REJECT_DEBIT_CARDS => property_exists($this->gateway, 'reject_debit_cards') ?
+                'yes' === $this->gateway->reject_debit_cards : true,
+            ConfigurationInterface::REJECT_CONSUMER_CARDS => property_exists($this->gateway, 'reject_consumer_cards') ?
+                'yes' === $this->gateway->reject_consumer_cards : true,
+            ConfigurationInterface::REJECT_CORPORATE_CARDS => property_exists($this->gateway, 'reject_corporate_cards') ?
+                'yes' === $this->gateway->reject_corporate_cards : true,
         ];
     }
 

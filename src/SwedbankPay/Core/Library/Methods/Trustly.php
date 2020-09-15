@@ -7,6 +7,16 @@ use SwedbankPay\Core\Exception;
 use SwedbankPay\Core\Log\LogLevel;
 use SwedbankPay\Core\Order;
 
+use SwedbankPay\Api\Service\Payment\Resource\Collection\PricesCollection;
+use SwedbankPay\Api\Service\Payment\Resource\Collection\Item\PriceItem;
+use SwedbankPay\Api\Service\Trustly\Request\Purchase;
+use SwedbankPay\Api\Service\Trustly\Resource\Request\PaymentPayeeInfo;
+use SwedbankPay\Api\Service\Trustly\Resource\Request\PaymentPrefillInfo;
+use SwedbankPay\Api\Service\Trustly\Resource\Request\PaymentUrl;
+use SwedbankPay\Api\Service\Trustly\Resource\Request\Payment;
+use SwedbankPay\Api\Service\Trustly\Resource\Request\PaymentObject;
+use SwedbankPay\Api\Service\Data\ResponseInterface as ResponseServiceInterface;
+
 trait Trustly
 {
     /**
@@ -24,52 +34,60 @@ trait Trustly
 
         $urls = $this->getPlatformUrls($orderId);
 
-        // Process payment
-        $params = [
-            'payment' => [
-                'operation' => self::OPERATION_PURCHASE,
-                'intent' => self::INTENT_SALE,
-                'currency' => $order->getCurrency(),
-                'prices' => [
-                    [
-                        'type' => TrustlyInterface::PRICE_TYPE_TRUSTLY,
-                        'amount' => $order->getAmountInCents(),
-                        'vatAmount' => $order->getVatAmountInCents()
-                    ]
-                ],
-                'description' => $order->getDescription(),
-                'payerReference' => $order->getPayerReference(),
-                'userAgent' => $order->getHttpUserAgent(),
-                'language' => $order->getLanguage(),
-                'urls' => [
-                    'hostUrls' => $urls->getHostUrls(),
-                    'completeUrl' => $urls->getCompleteUrl(),
-                    'cancelUrl' => $urls->getCancelUrl(),
-                    'callbackUrl' => $urls->getCallbackUrl(),
-                    'termsOfServiceUrl' => $urls->getTermsUrl(),
-                    'logoUrl'     => $urls->getLogoUrl(),
-                ],
-                'payeeInfo' => $this->getPayeeInfo($orderId)->toArray(),
-                'riskIndicator' => $this->getRiskIndicator($orderId)->toArray(),
-                'prefillInfo' => [
-                    'firstName' => $order->getBillingFirstName(),
-                    'lastName' => $order->getBillingLastName(),
-                ],
-                'metadata' => [
-                    'order_id' => $order->getOrderId()
-                ],
-            ]
-        ];
+        $url = new PaymentUrl();
+        $url->setCompleteUrl($urls->getCompleteUrl())
+            ->setCancelUrl($urls->getCancelUrl())
+            ->setCallbackUrl($urls->getCallbackUrl())
+            ->setLogoUrl($urls->getLogoUrl())
+            ->setTermsOfService($urls->getTermsUrl())
+            ->setHostUrls($urls->getHostUrls());
+
+        $payeeInfo = new PaymentPayeeInfo($this->getPayeeInfo($orderId)->toArray());
+
+        $prefillInfo = new PaymentPrefillInfo([
+            'firstName' => $order->getBillingFirstName(),
+            'lastName' => $order->getBillingLastName()
+        ]);
+
+        //$prefillInfo->setFirstName($order->getBillingFirstName())
+        //    ->setLatName($order->getBillingLastName());
+
+        $price = new PriceItem();
+        $price->setType(TrustlyInterface::PRICE_TYPE_TRUSTLY)
+            ->setAmount($order->getAmountInCents())
+            ->setVatAmount($order->getVatAmountInCents());
+
+        $prices = new PricesCollection();
+        $prices->addItem($price);
+
+        $payment = new Payment();
+        $payment->setOperation(self::OPERATION_PURCHASE)
+            ->setIntent(self::INTENT_SALE)
+            ->setCurrency($order->getCurrency())
+            ->setDescription($order->getDescription())
+            ->setUserAgent($order->getHttpUserAgent())
+            ->setLanguage($order->getLanguage())
+            ->setUrls($url)
+            ->setPayeeInfo($payeeInfo)
+            ->setPrefillInfo($prefillInfo)
+            ->setPrices($prices);
+
+        $paymentObject = new PaymentObject();
+        $paymentObject->setPayment($payment);
+
+        $purchaseRequest = new Purchase($paymentObject);
+        $purchaseRequest->setClient($this->client);
 
         try {
-            $result = $this->request('POST', TrustlyInterface::PAYMENTS_URL, $params);
+            /** @var ResponseServiceInterface $responseService */
+            $responseService = $purchaseRequest->send();
+
+            return new Response($responseService->getResponseData());
         } catch (\Exception $e) {
             $this->log(LogLevel::DEBUG, sprintf('%s::%s: API Exception: %s', __CLASS__, __METHOD__, $e->getMessage()));
 
             throw new Exception($e->getMessage());
         }
-
-        return $result;
     }
 
 }

@@ -509,7 +509,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
 
         if ($transaction_id) {
             $order->update_meta_data('_transaction_id', $transaction_id);
-            $order->save_meta_data();
+            $order->save();
         }
 
         switch ($status) {
@@ -519,7 +519,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
                 break;
             case OrderInterface::STATUS_AUTHORIZED:
                 $order->update_meta_data('_payex_payment_state', $status);
-                $order->save_meta_data();
+                $order->save();
 
                 // Reduce stock
                 $order_stock_reduced = $order->get_meta('_order_stock_reduced');
@@ -532,14 +532,14 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
                 break;
             case OrderInterface::STATUS_CAPTURED:
                 $order->update_meta_data('_payex_payment_state', $status);
-                $order->save_meta_data();
+                $order->save();
 
                 $order->payment_complete($transaction_id);
                 $order->add_order_note($message);
                 break;
             case OrderInterface::STATUS_CANCELLED:
                 $order->update_meta_data('_payex_payment_state', $status);
-                $order->save_meta_data();
+                $order->save();
 
                 if (!$order->has_status('cancelled')) {
                     $order->update_status('cancelled', $message);
@@ -552,7 +552,7 @@ class WC_Adapter extends PaymentAdapter implements PaymentAdapterInterface
                 // @see wc_create_refund()
 
                 $order->update_meta_data('_payex_payment_state', $status);
-                $order->save_meta_data();
+                $order->save();
 
                 if (!$order->has_status('refunded')) {
                     $order->update_status('refunded', $message);
